@@ -2,12 +2,9 @@ from flask import Blueprint, render_template, redirect, session, request, url_fo
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
 from .models import get_user_by_email, create_user
+from .db import mysql
 
 main = Blueprint("main", __name__)
-
-@main.route('/')
-def home():
-    return render_template('index.html')  # assuming you have templates/index.html
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -33,7 +30,7 @@ def login():
             session['user_id'] = user['userID']
             session['user_name'] = user['name']
             session['role'] = user['role']
-            return redirect(url_for("main.home"))
+            return redirect(url_for("main.index"))
         else:
             flash("Invalid credentials.")
     return render_template("login.html", form=form)
@@ -43,3 +40,79 @@ def logout():
     session.clear()
     flash("Logged out successfully.")
     return redirect(url_for("main.login"))
+
+@main.route('/')
+def index():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM item")
+    items = cur.fetchall()
+    cur.execute("SELECT * FROM carousel")
+    carousels = cur.fetchall()
+
+    query = request.args.get('query', '').strip()
+    category = request.args.get('category', '').strip()
+    sql = "SELECT * FROM item"
+    filters = []
+    params = []
+
+    if query:
+        filters.append("name LIKE %s")
+        params.append(f"%{query}%")
+    if category:
+        filters.append("category = %s")
+        params.append(category)
+    if filters:
+        sql += " WHERE " + " AND ".join(filters)
+
+    cur.execute(sql, params)
+    items = cur.fetchall()
+    cur.close()
+    
+    return render_template("index.html", items=items, carousels=carousels, query=query, category=category)
+
+@main.route('/about')
+def about():
+    return render_template('about.html')
+
+@main.route('/menu')
+def menu():
+    return render_template('menu.html')
+
+@main.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@main.route('/cart')
+def cart():
+    cart = session.get('cart', {})
+    total = sum(item['price'] * item['quantity'] for item in cart.values())
+    return render_template('cart.html', cart=cart, total=total)
+
+@main.route('/add_to_cart/<int:item_id>', methods=['POST'])
+def add_to_cart(item_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT itemID, name, price FROM item WHERE itemID = %s", (item_id,))
+    item = cur.fetchone()
+    cur.close()
+
+    if item:
+        cart = session.get('cart', {})
+        if str(item_id) in cart:
+            cart[str(item_id)]['quantity'] += 1
+        else:
+            cart[str(item_id)] = {
+                'itemID': item['itemID'],
+                'name': item['name'],
+                'price': float(item['price']),
+                'quantity': 1
+            }
+
+        session['cart'] = cart
+        flash(f"Added {item['name']} to cart!")
+
+    return redirect(url_for('main.index'))
+
+@main.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
+
