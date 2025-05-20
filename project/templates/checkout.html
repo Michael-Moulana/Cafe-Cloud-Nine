@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-    <link href="css/style.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body{
+{% block head %}
+{{ super() }}
+<style>
+     body{
             font-family: 'Quicksand', sans-serif;
         }
         body.dark-mode .container2{
@@ -66,156 +59,133 @@
         margin-right: auto;
     }
     </style>
-</head>
 
-<body>
+{% endblock %}
+{% block content %}
+<div style="margin-top: 50px; text-align: center;">
+    <h1>Checkout</h1>
+    <p class="text-muted">Complete your purchase by filling in your delivery details.</p>
+</div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Cafe Cloud Nine</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">HOME</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">ABOUT US</a></li>
-                    <li class="nav-item"><a class="nav-link" href="menu.html">MENU</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">CONTACT</a></li>
-                    <li class="nav-item"><a class="nav-link" href="cart.html">CART (<span>2</span>)</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div style="margin-top: 50px; text-align: center;">
-        <h1>Checkout</h1>
-        <p class="text-muted">Complete your purchase by filling in your delivery details.</p>
+<!-- Order Summary -->
+<div class="container2 checkout-summary" style="margin-top: 30px;">
+    <h3>Order Summary</h3>
+    <table style="width: 100%; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="order-summary">
+            <tr>
+                <td>Avocado on Toast</td>
+                <td>$20</td>
+                <td>1</td>
+                <td>$20</td>
+            </tr>
+            <tr>
+                <td>French Toast</td>
+                <td>$19</td>
+                <td>1</td>
+                <td>$19</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="checkout-total" style="font-size: 16px">
+        <p>Subtotal: $39</p>
+        <p>Delivery Fee: $<span id="delivery-fee">5</span></p>
+        <p><strong>Total: $<span id="total-price">44</span></strong></p>
     </div>
+</div>
 
-    <!-- Order Summary -->
-    <div class="container2 checkout-summary" style="margin-top: 30px;">
-        <h3>Order Summary</h3>
-        <table style="width: 100%; margin-bottom: 20px;">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Unit Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="order-summary">
-                <tr>
-                    <td>Avocado on Toast</td>
-                    <td>$20</td>
-                    <td>1</td>
-                    <td>$20</td>
-                </tr>
-                <tr>
-                    <td>French Toast</td>
-                    <td>$19</td>
-                    <td>1</td>
-                    <td>$19</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="checkout-total" style="font-size: 16px">
-            <p>Subtotal: $39</p>
-            <p>Delivery Fee: $<span id="delivery-fee">5</span></p>
-            <p><strong>Total: $<span id="total-price">44</span></strong></p>
-        </div>
-    </div>
-
-    <!-- Recipient's Details Form -->
-    <div class="container2 form-section">
-        <h3>Recipient Details</h3>
-        <form id="recipient-form">
-            <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" required>
-            </div>
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" required>
-            </div>
-            <div class="mb-3">
-                <label for="address" class="form-label">Delivery Address</label>
-                <textarea class="form-control" id="address" rows="4" required></textarea>
-            </div>
-        </form>
-    </div>
-
-    <!-- Delivery Options -->
-    <div class="container2 delivery-options">
-        <h3>Delivery Options</h3>
-      
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="deliveryOption" id="standard" value="standard" checked>
-          <label class="form-check-label" for="standard">
-            Standard Delivery - $5
-          </label>
-        </div>
-      
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="deliveryOption" id="express" value="express">
-          <label class="form-check-label" for="express">
-            Express Delivery - $10
-            <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
-              Receive your order in under 30 minutes guaranteed!
-            </span>
-          </label>
-        </div>
-      
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="deliveryOption" id="eco" value="eco-friendly">
-          <label class="form-check-label" for="eco">
-            Eco-Friendly Delivery - $3
-            <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
-              Delivered via sustainable vehicles and uses biodegradable utensils!.
-            </span>
-          </label>
-        </div>
-      </div>
-      
-
-    
-
-    <!-- Payment Method -->
+<!-- Recipient's Details Form -->
 <div class="container2 form-section">
-    <h3>Payment Method</h3>
-    <form id="payment-form">
+    <h3>Recipient Details</h3>
+    <form id="recipient-form">
         <div class="mb-3">
-            <label class="form-label">Choose Payment Method</label>
-            <div>
-                <input type="radio" id="card" name="payment-method" value="card" checked>
-                <label for="card">Credit/Debit Card</label>
-            </div>
-            <div>
-                <input type="radio" id="apple-pay" name="payment-method" value="apple-pay">
-                <label for="apple-pay">Apple Pay</label>
-            </div>
-            <div>
-                <input type="radio" id="cash" name="payment-method" value="cash">
-                <label for="cash">Cash on Delivery</label>
-            </div>
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" required>
         </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" required>
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Delivery Address</label>
+            <textarea class="form-control" id="address" rows="4" required></textarea>
+        </div>
+    </form>
+</div>
 
-        </form>
+<!-- Delivery Options -->
+<div class="container2 delivery-options">
+    <h3>Delivery Options</h3>
+  
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="radio" name="deliveryOption" id="standard" value="standard" checked>
+      <label class="form-check-label" for="standard">
+        Standard Delivery - $5
+      </label>
+    </div>
+  
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="radio" name="deliveryOption" id="express" value="express">
+      <label class="form-check-label" for="express">
+        Express Delivery - $10
+        <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
+          Receive your order in under 30 minutes guaranteed!
+        </span>
+      </label>
+    </div>
+  
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="radio" name="deliveryOption" id="eco" value="eco-friendly">
+      <label class="form-check-label" for="eco">
+        Eco-Friendly Delivery - $3
+        <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
+          Delivered via sustainable vehicles and uses biodegradable utensils!.
+        </span>
+      </label>
+    </div>
+  </div>
+  
+
+
+
+<!-- Payment Method -->
+<div class="container2 form-section">
+<h3>Payment Method</h3>
+<form id="payment-form">
+    <div class="mb-3">
+        <label class="form-label">Choose Payment Method</label>
+        <div>
+            <input type="radio" id="card" name="payment-method" value="card" checked>
+            <label for="card">Credit/Debit Card</label>
+        </div>
+        <div>
+            <input type="radio" id="apple-pay" name="payment-method" value="apple-pay">
+            <label for="apple-pay">Apple Pay</label>
+        </div>
+        <div>
+            <input type="radio" id="cash" name="payment-method" value="cash">
+            <label for="cash">Cash on Delivery</label>
+        </div>
+    </div>
+
+    </form>
 </div>
 <!-- Cart Actions -->
 <div class="container2 cart-actions" style="margin-top: 50px; margin-bottom: 50px;">
-    <button class="custom-btn" style="margin-right: 20px; margin-left: 0px;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
-    <button class="custom-btn"  type="submit" form="recipient-form" id="submit-order">Place Order</button>
+<button class="custom-btn" style="margin-right: 20px; margin-left: 0px;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
+<button class="custom-btn"  type="submit" form="recipient-form" id="submit-order">Place Order</button>
 </div>
-    <button id="toggleDarkMode">Change theme</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
 
-
-</body>

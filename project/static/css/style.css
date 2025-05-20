@@ -5,7 +5,14 @@ body {
     background-color: #f8f9fa;
     font-family: 'Quicksand', sans-serif;
 }
-
+.cafe-name{
+    font-family: 'League Script', cursive;
+font-weight: bold; 
+font-size: 5rem; 
+text-align: center; 
+margin-top: 50px; 
+color: #61baf1;
+}
 
 body.dark-mode{
     background-color: #121212;

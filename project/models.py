@@ -1,6 +1,5 @@
 from flask import current_app
-from . import mysql
-
+from .db import mysql
 
 def get_user_by_email(email):
     cursor = mysql.connection.cursor()
