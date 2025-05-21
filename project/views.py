@@ -112,6 +112,56 @@ def add_to_cart(item_id):
 
     return redirect(url_for('main.index'))
 
+#This code allows the user to remove items
+@main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])
+def remove_from_cart(item_id):
+    cart = session.get('cart', {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        remove_item = cart.pop(item_id_str)
+        session['cart'] = cart
+        flash(f"Removed {remove_item['name']}from cart.")
+    
+    else:
+        flash("item not found.")
+    
+    return redirect(url_for('main.cart'))
+
+#This code updates the quantity of items
+@main.route('/update_quanitiy/<int:item_id>', methods = ['POST'])
+def update_quantity(item_id):
+    cart = session.get('cart', {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        try:
+            quantity = int(request.form.get('quantity', 1))
+            if quantity > 0:
+                cart[item_id_str]['quantity'] = quantity
+                flash(f"Updated quantity for {cart[item_id_str]['name']}.")
+            
+            else:
+                cart.pop(item_id_str)
+                flash("Item removed from cart (quantity set to 0).")
+        
+        except ValueError:
+            flash("Invalid quantity.")
+    
+    else:
+        flash("Item not found.")
+
+    session['cart'] = cart
+    return redirect(url_for('main.cart'))
+
+#This code allows the user to empty the cart
+@main.route('/clear_cart', methods = ['POST'])
+def clear_cart():
+    session['cart'] = {}
+    flash("The cart is now empty")
+    return redirect(url_for('main.cart'))
+
+
 @main.route('/checkout')
 def checkout():
     return render_template('checkout.html')

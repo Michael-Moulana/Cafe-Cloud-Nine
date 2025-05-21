@@ -59,6 +59,18 @@
         .remove-btn:hover {
             text-decoration: underline;
         }
+
+        .clear-btn {
+            color: red;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .clear-btn:hover {
+            text-decoration: underline;
+        }
+
         .item-info{
             flex-grow: 1;
             padding-left: 10px;
@@ -94,11 +106,15 @@
                  data-price="{{ item.price }}"
                  data-item="item{{ item.itemID }}" />
         </form>
-        <span class="remove-btn">Remove</span>
+        <form action = "{{ url_for('main.remove_from_cart', item_id = item['itemID'])}}" method = "POST">
+          <button type = "submit" class="remove-btn">Remove</button>
+        </form>
       </div>
     </div>
     {% endfor %}
   </div>
+<!--i need to add a quantity update button-->
+
 
   <div style="margin-top: 50px; margin-bottom: 50px">
     <p style="text-align: right">Total: <span class="cart-total">${{ total }}</span></p>
@@ -107,6 +123,11 @@
   <div class="cart-actions">
     <a href="{{ url_for('menu') }}" class="custom-btn" style="margin-bottom: 50px">Continue Shopping</a>
     <a href="{{ url_for('checkout') }}" class="custom-btn" style="margin-bottom: 50px">Proceed to Checkout</a>
+
+    <form action="{{ url_for('main.clear_cart')}}" method = "POST" style = "display: inline;">
+      <button type = "submit" class = "clear-btn" style="margin-bottom: 50px;">Clear Cart</button>
+    </form>
+
   </div>
   {% else %}
   <p>Your cart is empty.</p>
