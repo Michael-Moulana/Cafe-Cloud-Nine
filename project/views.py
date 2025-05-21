@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user
+from .models import get_user_by_email, create_user, update_user_details
 from .db import mysql
+from datetime import datetime
 
 main = Blueprint("main", __name__)
 
@@ -112,7 +113,173 @@ def add_to_cart(item_id):
 
     return redirect(url_for('main.index'))
 
-@main.route('/checkout')
+@main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
-    return render_template('checkout.html')
+    cart = session.get('cart', {})
+    subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        delivery_option = request.form.get('deliveryOption')
+        payment_method = request.form.get('payment-method')
+
+        delivery_option = request.form.get('deliveryOption')
+        payment_method = request.form.get('payment-method')
+
+        if not payment_method:
+            payment_method = 'cash'
+        
+        if not delivery_option:
+            flash("Please select a delivery option.", "warning")
+            return redirect(url_for('main.checkout'))
+
+        if delivery_option == 'standard-delivery':
+            delivery_fee = 5
+        elif delivery_option == 'express-delivery':
+            delivery_fee = 10
+        elif delivery_option == 'eco-delivery':
+            delivery_fee = 3
+        else:
+            delivery_fee = 5
+
+        total = subtotal + delivery_fee
+
+        user_id = session.get('user_id')
+        if not user_id:
+            flash("Please log in to place an order.", "warning")
+            return redirect(url_for('main.login'))
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
+                                    payment_method, delivery_mode)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            user_id,
+            datetime.now(),
+            address,
+            'pending',
+            total,
+            payment_method,
+            delivery_option
+        ))
+        order_id = cur.lastrowid
+
+        for item in cart.values():
+            cur.execute("""
+                INSERT INTO order_items (orderID, itemID, quantity, unit_price)
+                VALUES (%s, %s, %s, %s)
+            """, (
+                order_id,
+                item['itemID'],
+                item['quantity'],
+                item['price']
+            ))
+
+        mysql.connection.commit()
+        cur.close()
+
+        session['cart'] = {}
+        flash("Your order has been placed successfully!", "success")
+        return redirect(url_for('main.order_success'))
+
+    delivery_fee = 5  # default for GET
+    total = subtotal + delivery_fee
+    return render_template(
+        'checkout.html',
+        cart=cart,
+        subtotal=subtotal,
+        delivery_fee=delivery_fee,
+        total=total,
+    )
+
+
+
+@main.route('/order-success')
+def order_success():
+    return render_template('order_success.html')
+
+
+@main.route('/profile', methods=['GET', 'POST'])
+def profile():
+    user_id = session['user_id']
+    cur = mysql.connection.cursor()
+
+    # Fetch current user information
+    cur.execute("""
+        SELECT u.name, u.email, u.phone_number,
+               a.street_name, a.city, a.postcode, a.territory
+        FROM user u
+        LEFT JOIN address a ON u.addressID = a.addressID
+        WHERE u.userID = %s
+    """, (user_id,))
+    user = cur.fetchone()
+
+    if request.method == 'POST':
+        # Update user information from the form
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        street_name = request.form['address']
+        city = request.form['city']
+        postcode = request.form['postcode']
+        territory = request.form['territory']
+
+        # Call the function to update user details in the database
+        update_user_details(user_id, name, email, phone, street_name, city, postcode, territory)
+        
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('main.profile'))
+
+    # Get past orders
+    cur.execute("""
+        SELECT o.orderID, o.order_date, o.total_amount, o.status,
+               i.name AS item_name, oi.quantity, oi.unit_price, oi.total_price
+        FROM user_order o
+        JOIN order_items oi ON o.orderID = oi.orderID
+        JOIN item i ON oi.itemID = i.itemID
+        WHERE o.userID = %s
+        ORDER BY o.order_date DESC
+    """, (user_id,))
+    raw_orders = cur.fetchall()
+    cur.close()
+
+    # Structure orders by orderID
+    from collections import defaultdict
+    orders = defaultdict(lambda: {"items": [], "order_date": None, "total": 0, "status": ""})
+
+    for row in raw_orders:
+        oid = row['orderID']
+        orders[oid]["order_date"] = row['order_date']
+        orders[oid]["total"] = row['total_amount']
+        orders[oid]["status"] = row['status']
+        orders[oid]["items"].append({
+            "name": row['item_name'],
+            "quantity": row['quantity'],
+            "unit_price": row['unit_price'],
+            "total_price": row['total_price']
+        })
+
+    return render_template("profile.html", user=user, orders=orders)
+
+@main.route('/update_profile', methods=['POST'])
+def update_profile():
+
+    user_id = session['user_id']
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    street_name = request.form['address']
+    city = request.form['city']
+    postcode = request.form['postcode']
+    territory = request.form['territory']
+
+    update_user_details(user_id, name, email, phone, street_name, city, postcode, territory)
+    
+    flash("Profile updated successfully!", "success")
+    return redirect(url_for('main.profile'))
 

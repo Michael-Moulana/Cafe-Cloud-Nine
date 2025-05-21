@@ -29,14 +29,22 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART (<span>2</span>)</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">LOGIN</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.register') }}">REGISTER</a></li>
+                    {% if 'user_id' in session %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">PROFILE</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">LOGOUT</a></li>
+{% else %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">LOGIN</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.register') }}">REGISTER</a></li>
+{% endif %}
+
+
 
                 </ul>
             </div>
         </div>
     </nav>
 
+    
     <!-- Page content -->
     <div class="container mt-4">
         {% block content %}{% endblock %}

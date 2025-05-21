@@ -1,66 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Cafe Cloud Nine{% endblock %}
+
 {% block head %}
 {{ super() }}
 <style>
-     body{
-            font-family: 'Quicksand', sans-serif;
-        }
-        body.dark-mode .container2{
-            background-color: #2c2f33;
-        }
-
-        .checkout-summary th, .checkout-summary td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        .checkout-summary td {
-            border-bottom: 1px solid #ddd;
-        }
-
-        .checkout-total {
-            font-size: 18px;
-            text-align: right;
-            margin-top: 20px;
-        }
-        
-        .delivery-options select{
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-        .container2 {
-            max-width: 900px;
-        }
-        .checkout-summary, .form-section, .delivery-options, .cart-actions{
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        .checkout-total {
-            font-size: 18px;
-            text-align: right;
-            margin-top: 20px;
-        }
-        
-        .form-control {
-            border-radius: 10px;
-        }
-        
-    .container2{
-        align-items: center;
-        width: 100%;
-        justify-content: center;
-        padding: 20px;
+    body {
+        font-family: 'Quicksand', sans-serif;
+    }
+    .container2 {
         max-width: 900px;
         margin-left: auto;
         margin-right: auto;
+        padding: 20px;
     }
-    </style>
-
+    .checkout-summary th, .checkout-summary td {
+        padding: 10px;
+        text-align: left;
+    }
+    .checkout-summary td {
+        border-bottom: 1px solid #ddd;
+    }
+    .checkout-total {
+        font-size: 18px;
+        text-align: right;
+        margin-top: 20px;
+    }
+    .delivery-options select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+    .form-section, .delivery-options, .cart-actions {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+</style>
 {% endblock %}
+
 {% block content %}
 <div style="margin-top: 50px; text-align: center;">
     <h1>Checkout</h1>
@@ -80,89 +61,66 @@
             </tr>
         </thead>
         <tbody id="order-summary">
+            {% for item in cart.values() %}
+            {% set item_total = item.price * item.quantity %}
             <tr>
-                <td>Avocado on Toast</td>
-                <td>$20</td>
-                <td>1</td>
-                <td>$20</td>
+                <td>{{ item.name }}</td>
+                <td>${{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item_total }}</td>
             </tr>
-            <tr>
-                <td>French Toast</td>
-                <td>$19</td>
-                <td>1</td>
-                <td>$19</td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
     <div class="checkout-total" style="font-size: 16px">
-        <p>Subtotal: $39</p>
-        <p>Delivery Fee: $<span id="delivery-fee">5</span></p>
-        <p><strong>Total: $<span id="total-price">44</span></strong></p>
+        <p>Subtotal: $<span id="subtotal">{{ subtotal }}</span></p>
+        <p>Delivery Fee: $<span id="delivery-fee">{{ delivery_fee }}</span></p>
+        <p><strong>Total: $<span id="total-price">{{ subtotal + delivery_fee }}</span></strong></p>
     </div>
 </div>
 
 <!-- Recipient's Details Form -->
 <div class="container2 form-section">
     <h3>Recipient Details</h3>
-    <form id="recipient-form">
+    <form id="recipient-form" method="POST" action="{{ url_for('main.checkout') }}">
         <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" required>
+            <input type="text" class="form-control" id="name" name="name">
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
-            <input type="email" class="form-control" id="email" required>
+            <input type="email" class="form-control" id="email" name="email">
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" required>
+            <input type="tel" class="form-control" id="phone" name="phone" >
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Delivery Address</label>
-            <textarea class="form-control" id="address" rows="4" required></textarea>
+            <textarea class="form-control" id="address" name="address" rows="4"></textarea>
         </div>
-    </form>
-</div>
+   
 
 <!-- Delivery Options -->
 <div class="container2 delivery-options">
     <h3>Delivery Options</h3>
-  
     <div class="form-check mb-2">
-      <input class="form-check-input" type="radio" name="deliveryOption" id="standard" value="standard" checked>
-      <label class="form-check-label" for="standard">
-        Standard Delivery - $5
-      </label>
+        <input class="form-check-input" type="radio" name="deliveryOption" id="standard-delivery" value="standard-delivery" checked>
+        <label class="form-check-label" for="standard">Standard Delivery - $5</label>
     </div>
-  
     <div class="form-check mb-2">
-      <input class="form-check-input" type="radio" name="deliveryOption" id="express" value="express">
-      <label class="form-check-label" for="express">
-        Express Delivery - $10
-        <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
-          Receive your order in under 30 minutes guaranteed!
-        </span>
-      </label>
+        <input class="form-check-input" type="radio" name="deliveryOption" id="express-delivery" value="express-delivery">
+        <label class="form-check-label" for="express">Express Delivery - $10</label>
     </div>
-  
     <div class="form-check mb-2">
-      <input class="form-check-input" type="radio" name="deliveryOption" id="eco" value="eco-friendly">
-      <label class="form-check-label" for="eco">
-        Eco-Friendly Delivery - $3
-        <span class="d-block text-muted" style="font-size: 0.85rem; font-weight: 400;">
-          Delivered via sustainable vehicles and uses biodegradable utensils!.
-        </span>
-      </label>
+        <input class="form-check-input" type="radio" name="deliveryOption" id="eco-delivery" value="eco-delivery">
+        <label class="form-check-label" for="eco">Eco-Friendly Delivery - $3</label>
     </div>
-  </div>
-  
-
-
+</div>
 
 <!-- Payment Method -->
 <div class="container2 form-section">
-<h3>Payment Method</h3>
-<form id="payment-form">
+    <h3>Payment Method</h3>
     <div class="mb-3">
         <label class="form-label">Choose Payment Method</label>
         <div>
@@ -178,14 +136,14 @@
             <label for="cash">Cash on Delivery</label>
         </div>
     </div>
+    <button class="custom-btn" style="margin-right: 20px;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
 
-    </form>
+    <button type="submit" class="custom-btn" style="margin-top: 50px; align-self: right;">Place Order</button>
+
+
+</form>
 </div>
-<!-- Cart Actions -->
-<div class="container2 cart-actions" style="margin-top: 50px; margin-bottom: 50px;">
-<button class="custom-btn" style="margin-right: 20px; margin-left: 0px;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
-<button class="custom-btn"  type="submit" form="recipient-form" id="submit-order">Place Order</button>
 </div>
+
 
 {% endblock %}
-
