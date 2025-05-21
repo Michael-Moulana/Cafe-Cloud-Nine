@@ -1,6 +1,5 @@
 Flask
 Flask-WTF
 WTForms
-PyMySQL
 Werkzeug
 Flask-MySQLdb
