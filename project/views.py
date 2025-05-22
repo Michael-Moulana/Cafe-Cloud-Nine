@@ -163,7 +163,7 @@ def clear_cart():
     return redirect(url_for('main.cart'))
 
 
-@main.route('/checkout')
+@main.route('/checkout', methods = ['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
