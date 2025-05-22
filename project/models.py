@@ -56,3 +56,46 @@ def update_user_details(user_id, name, email, phone, street_name, city, postcode
     mysql.connection.commit()
     cur.close()
 
+
+
+
+
+# for admin page
+def get_all_items():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT itemID, name, price, description, category, image FROM item")
+    items = cur.fetchall()
+    cur.close()
+    return items
+
+def get_item_by_id(item_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT itemID, name, price, description, category, image FROM item WHERE itemID = %s", (item_id,))
+    item = cur.fetchone()
+    cur.close()
+    return item
+
+def update_item_in_db(item_id, name, price, description, category, image):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE item
+        SET name = %s, price = %s, description = %s, category = %s, image = %s
+        WHERE itemID = %s
+    """, (name, price, description, category, image, item_id))
+    mysql.connection.commit()
+    cur.close()
+
+def add_item_to_db(name, price, description, category, image):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO item (name, price, description, category, image)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (name, price, description, category, image))
+    mysql.connection.commit()
+    cur.close()
+
+def remove_item_from_db(item_id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM item WHERE itemID = %s", (item_id,))
+    mysql.connection.commit()
+    cur.close()

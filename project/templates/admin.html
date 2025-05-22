@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+  body {
+    font-family: "Quicksand", sans-serif;
+  }
+  img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+  }
+  @media (max-width: 768px) {
+    h2 {
+      font-size: 1.4rem;
+    }
+    table {
+      font-size: 0.85rem;
+    }
+    td,
+    th {
+      vertical-align: middle;
+    }
+    .btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Admin Panel</h2>
+  <h3>Manage Items</h3>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ msg }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Price ($)</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th colspan="2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <form method="POST" action="{{ url_for('main.update_item', item_id=item['itemID']) }}">
+            <td>{{ item['itemID'] }}</td>
+            <td>
+              <img src="{{ url_for('static', filename='' ~ item['image']) }}" alt="Preview" />
+              <select name="image" class="form-select form-select-sm mt-1">
+                {% for img in image_list %}
+                  <option value="img/{{ img }}" {% if 'img/' ~ img == item['image'] %}selected{% endif %}>
+                    {{ img }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="text" name="name" value="{{ item['name'] }}" required class="form-control form-control-sm" />
+            </td>
+            <td>
+              <input type="number" step="0.01" name="price" value="{{ item['price'] }}" required class="form-control form-control-sm" />
+            </td>
+            <td>
+              <input type="text" name="description" value="{{ item['description'] }}" required class="form-control form-control-sm" />
+            </td>
+            <td>
+              <select name="category" class="form-select form-select-sm" required>
+                <option value="drinks" {% if item.category == 'drinks' %}selected{% endif %}>Drinks</option>
+                <option value="breakfast" {% if item.category == 'breakfast' %}selected{% endif %}>Breakfast</option>
+                <option value="main course" {% if item.category == 'main course' %}selected{% endif %}>Main Course</option>
+              </select>
+            </td>
+            <td>
+              <button type="submit" class="btn btn-sm btn-primary">Update</button>
+            </td>
+          </form>
+          <td>
+            <form action="{{ url_for('main.delete_item', item_id=item['itemID']) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+
+        <!-- Row for adding a new item -->
+        <tr>
+          <form action="{{ url_for('main.add_item') }}" method="POST">
+            <td>New</td>
+            <td>
+              <select name="image" class="form-select form-select-sm" required>
+                {% for img in image_list %}
+                <option value="{{ img }}">{{ img }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td><input type="text" name="name" placeholder="New name" required class="form-control form-control-sm" /></td>
+            <td><input type="number" step="0.01" name="price" placeholder="0.00" required class="form-control form-control-sm" /></td>
+            <td><input type="text" name="description" placeholder="Description" class="form-control form-control-sm" /></td>
+            <td>
+              <select name="category" class="form-select form-select-sm" required>
+                <option value="drinks">Drinks</option>
+                <option value="breakfast">Breakfast</option>
+                <option value="main course">Main Course</option>
+              </select>
+            </td>
+            <td colspan="2">
+              <button type="submit" class="btn btn-sm btn-success w-100">Add</button>
+            </td>
+          </form>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
