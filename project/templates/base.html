@@ -22,61 +22,30 @@
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}"
-          >Cafe Cloud Nine</a
-        >
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.index') }}">HOME</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.about') }}"
-                >ABOUT US</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.contact') }}"
-                >CONTACT</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.cart') }}"
-                >CART (<span>2</span>)</a
-              >
-            </li>
-            {% if 'user_id' in session %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.profile') }}"
-                >PROFILE</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.logout') }}">LOGOUT</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.login') }}">LOGIN</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.register') }}"
-                >REGISTER</a
-              >
-            </li>
-            {% endif %}
-          </ul>
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Cafe Cloud Nine</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">HOME</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">ABOUT US</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART <!--(<span >2</span>)--></a></li>
+                    {% if 'user_id' in session %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">PROFILE</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">LOGOUT</a></li>
+{% else %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">LOGIN</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.register') }}">REGISTER</a></li>
+{% endif %}
+
+
+
+                </ul>
+            </div>
         </div>
       </div>
     </nav>

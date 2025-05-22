@@ -120,55 +120,132 @@ def add_to_cart(item_id):
 
     return redirect(url_for('main.index'))
 
-@main.route('/checkout', methods=['GET', 'POST'])
+#This code allows the user to remove items
+@main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])
+def remove_from_cart(item_id):
+    cart = session.get('cart', {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        remove_item = cart.pop(item_id_str)
+        session['cart'] = cart
+        flash(f"Removed {remove_item['name']}from cart.")
+    
+    else:
+        flash("item not found.")
+    
+    return redirect(url_for('main.cart'))
+
+#This code updates the quantity of items
+@main.route('/update_quanitiy/<int:item_id>', methods = ['POST'])
+def update_quantity(item_id):
+    cart = session.get('cart', {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        try:
+            quantity = int(request.form.get('quantity', 1))
+            if quantity > 0:
+                cart[item_id_str]['quantity'] = quantity
+                flash(f"Updated quantity for {cart[item_id_str]['name']}.")
+            
+            else:
+                cart.pop(item_id_str)
+                flash("Item removed from cart (quantity set to 0).")
+        
+        except ValueError:
+            flash("Invalid quantity.")
+    
+    else:
+        flash("Item not found.")
+
+    session['cart'] = cart
+    return redirect(url_for('main.cart'))
+
+#This code allows the user to empty the cart
+@main.route('/clear_cart', methods = ['POST'])
+def clear_cart():
+    session['cart'] = {}
+    flash("The cart is now empty")
+    return redirect(url_for('main.cart'))
+
+
+@main.route('/checkout', methods = ['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    delivery_option = 'standard-delivery'
+    delivery_fee = 5
+    payment_method = 'card'
 
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in to place an order.", "warning")
+        return redirect(url_for('main.login'))
+        
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT u.name, u.email, u.phone_number,
+               u.addressID
+        FROM user u
+        WHERE u.userID = %s
+    """, (user_id,))    
+    user_details = cur.fetchone()
+
+    cur.execute("""
+    SELECT a.addressID, a.street_name, a.city, a.postcode, a.territory 
+    FROM address a
+    JOIN user u ON u.addressID = a.addressID 
+    WHERE u.userID = %s
+""", (user_id,))
+    addresses = cur.fetchall()
+
+
+    if user_details:
+        name, email, phone, addressID  = user_details        
 
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        address = request.form.get('address')
+        address_id = request.form.get('address')
+        print(f"Address ID: { address_id}")
         delivery_option = request.form.get('deliveryOption')
         payment_method = request.form.get('payment-method')
 
-        delivery_option = request.form.get('deliveryOption')
-        payment_method = request.form.get('payment-method')
-
-        if not payment_method:
-            payment_method = 'cash'
-        
-        if not delivery_option:
-            flash("Please select a delivery option.", "warning")
-            return redirect(url_for('main.checkout'))
-
+        # Update delivery fee
         if delivery_option == 'standard-delivery':
             delivery_fee = 5
         elif delivery_option == 'express-delivery':
             delivery_fee = 10
         elif delivery_option == 'eco-delivery':
             delivery_fee = 3
-        else:
-            delivery_fee = 5
 
         total = subtotal + delivery_fee
 
-        user_id = session.get('user_id')
-        if not user_id:
-            flash("Please log in to place an order.", "warning")
-            return redirect(url_for('main.login'))
+        if not all([name, email, phone, address_id, delivery_option, payment_method]):
+            flash("All fields are required. Please complete the form.", "danger")
+            return render_template(
+        'checkout.html',
+        cart=cart,
+        subtotal=subtotal,
+        delivery_fee=delivery_fee,
+        total=total,
+        delivery_option=delivery_option,
+        payment_method=payment_method,
+        user_details=user_details,
+        addresses=addresses
+    )
 
-        cur = mysql.connection.cursor()
+
         cur.execute("""
-            INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
+            INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
                                     payment_method, delivery_mode)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             user_id,
             datetime.now(),
-            address,
+            address_id,
             'pending',
             total,
             payment_method,
@@ -193,15 +270,30 @@ def checkout():
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
         return redirect(url_for('main.order_success'))
+    
+        
 
-    delivery_fee = 5  # default for GET
+    else:
+        if delivery_option == 'standard-delivery':
+            delivery_fee = 5
+        elif delivery_option == 'express-delivery':
+            delivery_fee = 10
+        elif delivery_option == 'eco-delivery':
+            delivery_fee = 3
+        
+
     total = subtotal + delivery_fee
+
     return render_template(
         'checkout.html',
         cart=cart,
         subtotal=subtotal,
         delivery_fee=delivery_fee,
         total=total,
+        delivery_option=delivery_option,
+        payment_method=payment_method,
+        user_details=user_details,
+        addresses=addresses
     )
 
 
