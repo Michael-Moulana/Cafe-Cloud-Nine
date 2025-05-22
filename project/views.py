@@ -117,51 +117,78 @@ def add_to_cart(item_id):
 def checkout():
     cart = session.get('cart', {})
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    delivery_option = 'standard-delivery'
+    delivery_fee = 5
+    payment_method = 'card'
 
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in to place an order.", "warning")
+        return redirect(url_for('main.login'))
+        
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT u.name, u.email, u.phone_number,
+               u.addressID
+        FROM user u
+        WHERE u.userID = %s
+    """, (user_id,))    
+    user_details = cur.fetchone()
+
+    cur.execute("""
+    SELECT a.addressID, a.street_name, a.city, a.postcode, a.territory 
+    FROM address a
+    JOIN user u ON u.addressID = a.addressID 
+    WHERE u.userID = %s
+""", (user_id,))
+    addresses = cur.fetchall()
+
+
+    if user_details:
+        name, email, phone, addressID  = user_details        
 
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        address = request.form.get('address')
+        address_id = request.form.get('address')
+        print(f"Address ID: { address_id}")
         delivery_option = request.form.get('deliveryOption')
         payment_method = request.form.get('payment-method')
 
-        delivery_option = request.form.get('deliveryOption')
-        payment_method = request.form.get('payment-method')
-
-        if not payment_method:
-            payment_method = 'cash'
-        
-        if not delivery_option:
-            flash("Please select a delivery option.", "warning")
-            return redirect(url_for('main.checkout'))
-
+        # Update delivery fee
         if delivery_option == 'standard-delivery':
             delivery_fee = 5
         elif delivery_option == 'express-delivery':
             delivery_fee = 10
         elif delivery_option == 'eco-delivery':
             delivery_fee = 3
-        else:
-            delivery_fee = 5
 
         total = subtotal + delivery_fee
 
-        user_id = session.get('user_id')
-        if not user_id:
-            flash("Please log in to place an order.", "warning")
-            return redirect(url_for('main.login'))
+        if not all([name, email, phone, address_id, delivery_option, payment_method]):
+            flash("All fields are required. Please complete the form.", "danger")
+            return render_template(
+        'checkout.html',
+        cart=cart,
+        subtotal=subtotal,
+        delivery_fee=delivery_fee,
+        total=total,
+        delivery_option=delivery_option,
+        payment_method=payment_method,
+        user_details=user_details,
+        addresses=addresses
+    )
 
-        cur = mysql.connection.cursor()
+
         cur.execute("""
-            INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
+            INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
                                     payment_method, delivery_mode)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             user_id,
             datetime.now(),
-            address,
+            address_id,
             'pending',
             total,
             payment_method,
@@ -186,15 +213,30 @@ def checkout():
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
         return redirect(url_for('main.order_success'))
+    
+        
 
-    delivery_fee = 5  # default for GET
+    else:
+        if delivery_option == 'standard-delivery':
+            delivery_fee = 5
+        elif delivery_option == 'express-delivery':
+            delivery_fee = 10
+        elif delivery_option == 'eco-delivery':
+            delivery_fee = 3
+        
+
     total = subtotal + delivery_fee
+
     return render_template(
         'checkout.html',
         cart=cart,
         subtotal=subtotal,
         delivery_fee=delivery_fee,
         total=total,
+        delivery_option=delivery_option,
+        payment_method=payment_method,
+        user_details=user_details,
+        addresses=addresses
     )
 
 
