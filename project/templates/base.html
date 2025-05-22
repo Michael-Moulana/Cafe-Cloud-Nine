@@ -28,7 +28,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">ABOUT US</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART (<span>2</span>)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART <!--(<span >2</span>)--></a></li>
                     {% if 'user_id' in session %}
     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">PROFILE</a></li>
     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">LOGOUT</a></li>
