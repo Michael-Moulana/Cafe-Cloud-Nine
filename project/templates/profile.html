@@ -10,53 +10,61 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>User Profile</h2>
-    <div class="card p-3 mb-4">
+<div class="container mt-4" style="font-size: 20px;">
+   
+<div class="col-12" style="text-align: center;"> 
         <h4>{{ user.name }}</h4>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>Phone:</strong> {{ user.phone_number }}</p>
         <p><strong>Address:</strong> {{ user.street_name }}, {{ user.city }}, {{ user.postcode }}, {{ user.territory }}</p>
     </div>
-
     <h4 class="mt-5">Past Orders</h4>
 
 {% if orders %}
+<div class="row">
     {% for order_id, order in orders.items() %}
-        <div class="card mb-3 p-3">
-            <h5>Order #{{ order_id }}</h5>
-            <p><strong>Date:</strong> {{ order.order_date.strftime('%Y-%m-%d') }}</p>
-            <p><strong>Status:</strong> {{ order.status }}</p>
-            <p><strong>Total:</strong> ${{ '%.2f' | format(order.total) }}</p>
+        <div class="col-md-4 mb-4 p-3">
+            <div class="card p-3 h-100">
+                <h5>Order #{{ order_id }}</h5>
+                <p><strong>Date:</strong> {{ order.order_date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Status:</strong> {{ order.status }}</p>
+                <p><strong>Total:</strong> ${{ '%.2f' | format(order.total) }}</p>
 
-            <table class="table table-sm mt-3">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in order["items"] %}
-                    <tr>
+                <table class="table table-sm mt-3">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order["items"] %}
+                        <tr>
                             <td>{{ item.name }}</td>
                             <td>{{ item.quantity }}</td>
                             <td>${{ '%.2f' | format(item.unit_price) }}</td>
                             <td>${{ '%.2f' | format(item.total_price) }}</td>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        {% if loop.index0 % 3 == 2 and not loop.last %}
+            </div><div class="row">
+        {% endif %}
     {% endfor %}
+</div>
+
 {% else %}
     <p>No past orders found.</p>
 {% endif %}
 
     <!-- Form for editing user profile -->
-    <h4>Edit Profile</h4>
+    <h4 style="margin-top: 20px;">Edit Profile</h4>
     <form action="{{ url_for('main.update_profile') }}" method="POST">
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>

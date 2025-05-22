@@ -72,11 +72,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <div class="checkout-total" style="font-size: 16px">
-        <p>Subtotal: $<span id="subtotal">{{ subtotal }}</span></p>
-        <p>Delivery Fee: $<span id="delivery-fee">{{ delivery_fee }}</span></p>
-        <p><strong>Total: $<span id="total-price">{{ subtotal + delivery_fee }}</span></strong></p>
-    </div>
+    
 </div>
 
 <!-- Recipient's Details Form -->
@@ -85,19 +81,26 @@
     <form id="recipient-form" method="POST" action="{{ url_for('main.checkout') }}">
         <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" name="name">
+            <input type="text" class="form-control" id="name" name="name" value="{{ user_details.name }}">
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
-            <input type="email" class="form-control" id="email" name="email">
+            <input type="email" class="form-control" id="email" name="email" value="{{ user_details.email }}">
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" name="phone" >
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user_details.phone_number }}">
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Delivery Address</label>
-            <textarea class="form-control" id="address" name="address" rows="4"></textarea>
+            <select class="form-control" id="address" name="address">
+                <option value="">Select an address</option> <!-- Optional default option -->
+                {% for address in addresses %}
+                    <option value="{{ address.addressID }}">
+                        {{ address.street_name }}, {{ address.city }}, {{ address.postcode }}, {{ address.territory }}
+                    </option>
+                {% endfor %}
+            </select>
         </div>
    
 
@@ -105,18 +108,20 @@
 <div class="container2 delivery-options">
     <h3>Delivery Options</h3>
     <div class="form-check mb-2">
-        <input class="form-check-input" type="radio" name="deliveryOption" id="standard-delivery" value="standard-delivery" checked>
-        <label class="form-check-label" for="standard">Standard Delivery - $5</label>
+        <input class="form-check-input" type="radio" name="deliveryOption" id="standard-delivery" value="standard-delivery" required>
+        <label class="form-check-label" for="standard-delivery">Standard Delivery - $5</label>
     </div>
     <div class="form-check mb-2">
         <input class="form-check-input" type="radio" name="deliveryOption" id="express-delivery" value="express-delivery">
-        <label class="form-check-label" for="express">Express Delivery - $10</label>
+
+        <label class="form-check-label" for="express-delivery">Express Delivery - $10</label>
     </div>
     <div class="form-check mb-2">
         <input class="form-check-input" type="radio" name="deliveryOption" id="eco-delivery" value="eco-delivery">
-        <label class="form-check-label" for="eco">Eco-Friendly Delivery - $3</label>
+        <label class="form-check-label" for="eco-delivery">Eco-Friendly Delivery - $3</label>
     </div>
 </div>
+
 
 <!-- Payment Method -->
 <div class="container2 form-section">
@@ -124,26 +129,52 @@
     <div class="mb-3">
         <label class="form-label">Choose Payment Method</label>
         <div>
-            <input type="radio" id="card" name="payment-method" value="card" checked>
-            <label for="card">Credit/Debit Card</label>
+            <input type="radio" id="card" name="payment-method" value="card" required>
+<label for="card">Credit/Debit Card</label>
+
         </div>
         <div>
             <input type="radio" id="apple-pay" name="payment-method" value="apple-pay">
-            <label for="apple-pay">Apple Pay</label>
+<label for="apple-pay">Apple Pay</label>
+
         </div>
         <div>
             <input type="radio" id="cash" name="payment-method" value="cash">
-            <label for="cash">Cash on Delivery</label>
+<label for="cash">Cash on Delivery</label>
         </div>
     </div>
-    <button class="custom-btn" style="margin-right: 20px;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
-
-    <button type="submit" class="custom-btn" style="margin-top: 50px; align-self: right;">Place Order</button>
-
 
 </form>
+
+    <div class="checkout-total" style="font-size: 16px">
+        <p>Subtotal: $<span id="subtotal">{{ subtotal }}</span></p>
+        <p>Delivery Fee: $<span id="delivery-fee">{{ delivery_fee }}</span></p>
+        <p><strong>Total: $<span id="total-price">{{ subtotal + delivery_fee }}</span></strong></p>
+        <button class="custom-btn" style="margin-right: 20px; text-align: left;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
+
+    <button type="submit" class="custom-btn" style="margin-top: 50px;">Place Order</button>
+
+    
 </div>
 </div>
 
+
+        
+</div>
+
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container2">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+ 
 
 {% endblock %}
