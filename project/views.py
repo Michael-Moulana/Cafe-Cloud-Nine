@@ -18,12 +18,12 @@ def register():
     if form.validate_on_submit():
         existing = get_user_by_email(form.email.data)
         if existing:
-            flash("Email already registered.")
+            flash("Email already registered.", "danger")
             return redirect(url_for("main.register"))
 
         hashed = generate_password_hash(form.password.data)
         create_user(form.name.data, form.email.data, hashed)
-        flash("Registration successful. Please log in.")
+        flash("Registration successful. Please log in.", "success")
         return redirect(url_for("main.login"))
     return render_template("register.html", form=form)
 
@@ -33,6 +33,7 @@ def login():
     if form.validate_on_submit():
         user = get_user_by_email(form.email.data)
         if user and check_password_hash(user['password'], form.password.data):
+            session.permanent = True
             session['user_id'] = user['userID']
             session['user_name'] = user['name']
             session['role'] = user['role']
@@ -41,7 +42,7 @@ def login():
             else:
                 return redirect(url_for("main.index"))
         else:
-            flash("Invalid credentials.")
+            flash("Invalid credentials.", "danger")
     return render_template("login.html", form=form)
 
 @main.route("/logout")
