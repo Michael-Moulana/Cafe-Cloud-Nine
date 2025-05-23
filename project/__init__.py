@@ -10,9 +10,9 @@ def create_app():
     # MySQL configuration for Flask-MySQLdb
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = '1111'
+    app.config['MYSQL_PASSWORD'] = 'sqlhriqut'
     app.config['MYSQL_DB'] = 'a2_db'
-    app.config['MYSQL_PORT'] = 3307
+    app.config['MYSQL_PORT'] = 3306
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'  # Flask-MySQLdb expects a string
 
     mysql.init_app(app)
