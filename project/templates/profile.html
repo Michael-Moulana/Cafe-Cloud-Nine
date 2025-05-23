@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Profile - Cafe Cloud Nine{% endblock %}
+{% block head %}
+{{ super() }}
+<style>
+    body {
+        font-family: "Quicksand", sans-serif;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="font-size: 20px;">
+   
+<div class="col-12" style="text-align: center;"> 
+    <div class="card shadow-sm p-4 rounded-3 mb-4" style="max-width: 500px;">
+        <div class="card-body">
+          <h4 class="card-title mb-3 text-primary">{{ user.name }}</h4>
+      
+          <p class="mb-2">
+            <i class="bi bi-envelope-fill me-2 text-muted"></i>
+            <strong>Email:</strong> {{ user.email }}
+          </p>
+      
+          <p class="mb-2">
+            <i class="bi bi-telephone-fill me-2 text-muted"></i>
+            <strong>Phone:</strong> {{ user.phone_number }}
+          </p>
+      
+          <p class="mb-0">
+            <i class="bi bi-geo-alt-fill me-2 text-muted"></i>
+            <strong>Address:</strong><br>
+            {{ user.street_name }}<br>
+            {{ user.city }}, {{ user.postcode }}<br>
+            {{ user.territory }}
+          </p>
+        </div>
+      </div>
+      
+    <h4 class="mt-5">Past Orders</h4>
+
+{% if orders %}
+<div class="row">
+    {% for order_id, order in orders.items() %}
+        <div class="col-md-4 mb-4 p-3">
+            <div class="card p-3 h-100">
+                <h5>Order #{{ order_id }}</h5>
+                <p><strong>Date:</strong> {{ order.order_date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Status:</strong> {{ order.status }}</p>
+                <p><strong>Total:</strong> ${{ '%.2f' | format(order.total) }}</p>
+
+                <table class="table table-sm mt-3">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order["items"] %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ '%.2f' | format(item.unit_price) }}</td>
+                            <td>${{ '%.2f' | format(item.total_price) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if loop.index0 % 3 == 2 and not loop.last %}
+            </div><div class="row">
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% else %}
+    <p>No past orders found.</p>
+{% endif %}
+
+    <!-- Form for editing user profile -->
+    <h4 style="margin-top: 20px;">Edit Profile</h4>
+    <form action="{{ url_for('main.update_profile') }}" method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone_number }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Street Address</label>
+            <input type="text" class="form-control" id="address" name="address" value="{{ user.street_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{ user.city }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="postcode" class="form-label">Postcode</label>
+            <input type="text" class="form-control" id="postcode" name="postcode" value="{{ user.postcode }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="territory" class="form-label">Territory</label>
+            <input type="text" class="form-control" id="territory" name="territory" value="{{ user.territory }}" required>
+        </div>
+        <button type="submit" class="custom-btn">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

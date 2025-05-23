@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contact</title>
-    <link href="css/style.css" rel="stylesheet" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
+{% extends "base.html" %}
+
+{% block title %}Contact us - Cafe Cloud Nine{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+
       body {
         font-family: "Quicksand", sans-serif;
       }
@@ -44,175 +40,129 @@
         width: 300px;
       }
     </style>
-  </head>
+{% endblock %}
 
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container">
-        <a class="navbar-brand" href="#">Cafe Cloud Nine</a>
+{% block content %}
+<div class="container">
+  <div class="contact-header">
+    <h1 style="margin-top: 30px">Contact Us</h1>
+    <p>We'd love to hear from you!</p>
+  </div>
+
+  <!-- Contact Form -->
+  <form action="#" method="POST">
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="name"
+        name="name"
+        placeholder="Enter your name"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        name="email"
+        placeholder="Enter your email"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="subject">Subject</label>
+      <input
+        type="text"
+        class="form-control"
+        id="subject"
+        name="subject"
+        placeholder="Subject"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="message">Message</label>
+      <textarea
+        class="form-control"
+        id="message"
+        name="message"
+        rows="4"
+        placeholder="Your message"
+        required
+      ></textarea>
+    </div>
+    <button type="submit" class="custom-btn btn-lg w-100">
+      Send Message
+    </button>
+  </form>
+
+  <div class="row mt-5" style="text-align: center">
+    <div class="col-md-6 mb-4">
+      <div style="font-weight: lighter">
+        <p>
+          Email:
+          <a href="mailto:support@cafecloudnine.com"
+            >support@cafecloudnine.com</a
+          >
+        </p>
+        <p>Phone: <a href="tel:+61712345678">+61 123 456 789</a></p>
+        <p>
+          Opening Hours:<br />
+          Mon - Fri: 7:00 AM – 6:00 PM<br />
+          Sat - Sun: 8:00 AM – 4:00 PM
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <p style="font-weight: lighter">
+        Cafe Cloud Nine<br />
+        123 Brew Street<br />
+        Brisbane, QLD 4000<br />
+        Australia
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Button -->
+<div class="chat-popup">
+  <button
+    class="custom-btn w-50"
+    type="button"
+    data-bs-toggle="collapse"
+    data-bs-target="#chatBox"
+  >
+    💬 Chat with us
+  </button>
+
+  <!-- Chat Box -->
+  <div class="collapse mt-2" id="chatBox">
+    <div class="card">
+      <div>
         <button
-          class="navbar-toggler"
           type="button"
+          class="btn-close btn-sm"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">HOME</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">ABOUT US</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="menu.html">MENU</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="contact.html">CONTACT</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="cart.html">CART (<span>2</span>)</a>
-            </li>
-          </ul>
-        </div>
+          data-bs-target="#chatBox"
+          aria-label="Close"
+        ></button>
       </div>
-    </nav>
-
-    <div class="container">
-      <div class="contact-header">
-        <h1 style="margin-top: 30px">Contact Us</h1>
-        <p>We'd love to hear from you!</p>
+      <div class="card-body" style="height: 200px; overflow-y: auto">
+        <p class="text-muted">Welcome! How can we help you?</p>
       </div>
-
-      <!-- Contact Form -->
-      <form action="#" method="POST">
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input
-            type="text"
-            class="form-control"
-            id="name"
-            name="name"
-            placeholder="Enter your name"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="email">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            name="email"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="subject">Subject</label>
-          <input
-            type="text"
-            class="form-control"
-            id="subject"
-            name="subject"
-            placeholder="Subject"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="message">Message</label>
-          <textarea
-            class="form-control"
-            id="message"
-            name="message"
-            rows="4"
-            placeholder="Your message"
-            required
-          ></textarea>
-        </div>
-        <button type="submit" class="custom-btn btn-lg w-100">
-          Send Message
-        </button>
-      </form>
-
-      <div class="row mt-5" style="text-align: center">
-        <div class="col-md-6 mb-4">
-          <div style="font-weight: lighter">
-            <p>
-              Email:
-              <a href="mailto:support@cafecloudnine.com"
-                >support@cafecloudnine.com</a
-              >
-            </p>
-            <p>Phone: <a href="tel:+61712345678">+61 123 456 789</a></p>
-            <p>
-              Opening Hours:<br />
-              Mon - Fri: 7:00 AM – 6:00 PM<br />
-              Sat - Sun: 8:00 AM – 4:00 PM
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 mb-4">
-          <p style="font-weight: lighter">
-            Cafe Cloud Nine<br />
-            123 Brew Street<br />
-            Brisbane, QLD 4000<br />
-            Australia
-          </p>
-        </div>
+      <div>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Type your message..."
+        />
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Chat Button -->
-    <div class="chat-popup">
-      <button
-        class="custom-btn w-50"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#chatBox"
-      >
-        💬 Chat with us
-      </button>
-
-      <!-- Chat Box -->
-      <div class="collapse mt-2" id="chatBox">
-        <div class="card">
-          <div>
-            <button
-              type="button"
-              class="btn-close btn-sm"
-              data-bs-toggle="collapse"
-              data-bs-target="#chatBox"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="card-body" style="height: 200px; overflow-y: auto">
-            <p class="text-muted">Welcome! How can we help you?</p>
-          </div>
-          <div>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Type your message..."
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="text-center py-4 w-100" style="background-color: #f8f9fa">
-      <h6>Contact Us</h6>
-      <p>Email: support@cafecloudnine.com<br />Phone: +61 123 456 789</p>
-      <p>&copy; 2025 Cafe Cloud Nine. All Rights Reserved.</p>
-    </footer>
-
-    <button id="toggleDarkMode">Change theme</button>
-
-    <!-- Bootstrap JS (no custom script) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
+{% endblock %}
