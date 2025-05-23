@@ -13,11 +13,30 @@
 <div class="container mt-4" style="font-size: 20px;">
    
 <div class="col-12" style="text-align: center;"> 
-        <h4>{{ user.name }}</h4>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Phone:</strong> {{ user.phone_number }}</p>
-        <p><strong>Address:</strong> {{ user.street_name }}, {{ user.city }}, {{ user.postcode }}, {{ user.territory }}</p>
-    </div>
+    <div class="card shadow-sm p-4 rounded-3 mb-4" style="max-width: 500px;">
+        <div class="card-body">
+          <h4 class="card-title mb-3 text-primary">{{ user.name }}</h4>
+      
+          <p class="mb-2">
+            <i class="bi bi-envelope-fill me-2 text-muted"></i>
+            <strong>Email:</strong> {{ user.email }}
+          </p>
+      
+          <p class="mb-2">
+            <i class="bi bi-telephone-fill me-2 text-muted"></i>
+            <strong>Phone:</strong> {{ user.phone_number }}
+          </p>
+      
+          <p class="mb-0">
+            <i class="bi bi-geo-alt-fill me-2 text-muted"></i>
+            <strong>Address:</strong><br>
+            {{ user.street_name }}<br>
+            {{ user.city }}, {{ user.postcode }}<br>
+            {{ user.territory }}
+          </p>
+        </div>
+      </div>
+      
     <h4 class="mt-5">Past Orders</h4>
 
 {% if orders %}

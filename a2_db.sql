@@ -152,6 +152,8 @@ INSERT INTO user (name, phone_number, email, role, addressID) VALUES
 ('Bob Johnson', '0498765432', 'bob@example.com', 'admin', 2),
 ('Charlie Lee', '0422334455', 'charlie@example.com', 'customer', 3);
 
+insert into user (name, phone_number, email, role, password) values ('admin1', '123456789', 'admin1@gmail.com', 'admin', '123');
+
 INSERT INTO user_order (userID, order_date, delivery_address, delivery_mode, payment_method)
 SELECT 
     u.userID,
@@ -175,3 +177,4 @@ INSERT into carousel (carouselImg_url) values
 ('img/carousel-item2.jpg'),
 ('img/carousel-item3.jpg'),
 ('img/carousel-item4.jpg');
+
