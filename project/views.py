@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, 
 from .db import mysql
 from datetime import datetime
-from .models import get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile
-
+from .models import get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
+import os
+from .decorators import admin_required
 
 
 main = Blueprint("main", __name__)
@@ -16,12 +17,12 @@ def register():
     if form.validate_on_submit():
         existing = get_user_by_email(form.email.data)
         if existing:
-            flash("Email already registered.")
+            flash("Email already registered.", "danger")
             return redirect(url_for("main.register"))
 
         hashed = generate_password_hash(form.password.data)
         create_user(form.name.data, form.email.data, hashed)
-        flash("Registration successful. Please log in.")
+        flash("Registration successful. Please log in.", "success")
         return redirect(url_for("main.login"))
     return render_template("register.html", form=form)
 
@@ -31,19 +32,22 @@ def login():
     if form.validate_on_submit():
         user = get_user_by_email(form.email.data)
         if user and check_password_hash(user['password'], form.password.data):
+            session.permanent = True
             session['user_id'] = user['userID']
             session['user_name'] = user['name']
             session['role'] = user['role']
-            return redirect(url_for("main.index"))
+            if user['role'] == 'admin':
+                return redirect(url_for("main.admin"))
+            else:
+                return redirect(url_for("main.index"))
         else:
-            flash("Invalid credentials.")
+            flash("Invalid credentials.", "danger")
     return render_template("login.html", form=form)
 
 @main.route("/logout")
 def logout():
     session.clear()
-    flash("Logged out successfully.")
-    return redirect(url_for("main.login"))
+    return redirect(url_for("main.index"))
 
 @main.route('/')
 def index():
@@ -306,3 +310,55 @@ def update_profile():
     flash("Profile updated successfully!", "success")
     return redirect(url_for('main.profile'))
 
+
+# admin routes
+@main.route('/admin')
+@admin_required
+def admin():
+    items = get_all_items()
+
+    # List image files from static/img
+    image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
+    image_list = os.listdir(image_dir) if os.path.exists(image_dir) else []
+
+    return render_template('admin.html', items=items, image_list=image_list)
+
+@main.route("/admin/update/<int:item_id>", methods=["POST"])
+@admin_required
+def update_item(item_id):
+    name = request.form["name"]
+    price = request.form["price"]
+    description = request.form["description"]
+    category = request.form["category"]
+    image = request.form["image"]
+
+    update_item_in_db(item_id, name, price, description, category, image) 
+    flash("Item updated successfully.")
+    return redirect(url_for("main.admin"))
+
+@main.route('/admin/add_item', methods=['POST'])
+@admin_required
+def add_item():
+    name = request.form['name']
+    price = request.form['price']
+    description = request.form['description']
+    category = request.form['category']
+    image = 'img/' + request.form['image']
+
+    add_item_to_db(name, price, description, category, image) 
+    flash("New item added successfully.")
+    return redirect(url_for('main.admin'))
+
+@main.route('/admin/delete_item/<int:item_id>', methods=['POST'])
+@admin_required
+def delete_item(item_id):
+    remove_item_from_db(item_id)
+    flash("Item deleted successfully.")
+    return redirect(url_for('main.admin'))
+
+
+
+# error routes
+@main.route('/error')
+def error():
+    return render_template('error.html'), 403  # 403 Forbidden status code
