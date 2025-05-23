@@ -1,12 +1,11 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, update_item_in_db, add_item_to_db, remove_item_from_db
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, 
 from .db import mysql
 from datetime import datetime
+from .models import get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
 import os
-
-
 from .decorators import admin_required
 
 
@@ -52,30 +51,13 @@ def logout():
 
 @main.route('/')
 def index():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM item")
-    items = cur.fetchall()
-    cur.execute("SELECT * FROM carousel")
-    carousels = cur.fetchall()
+    items = get_all_items()
+    carousels = get_carousels()
 
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '').strip()
-    sql = "SELECT * FROM item"
-    filters = []
-    params = []
-
-    if query:
-        filters.append("name LIKE %s")
-        params.append(f"%{query}%")
-    if category:
-        filters.append("category = %s")
-        params.append(category)
-    if filters:
-        sql += " WHERE " + " AND ".join(filters)
-
-    cur.execute(sql, params)
-    items = cur.fetchall()
-    cur.close()
+    
+    items = search_items(query, category)
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category)
 
@@ -99,10 +81,7 @@ def cart():
 
 @main.route('/add_to_cart/<int:item_id>', methods=['POST'])
 def add_to_cart(item_id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT itemID, name, price FROM item WHERE itemID = %s", (item_id,))
-    item = cur.fetchone()
-    cur.close()
+    item=get_item_by_id(item_id)
 
     if item:
         cart = session.get('cart', {})
@@ -138,7 +117,7 @@ def remove_from_cart(item_id):
     return redirect(url_for('main.cart'))
 
 #This code updates the quantity of items
-@main.route('/update_quanitiy/<int:item_id>', methods = ['POST'])
+@main.route('/update_quantity/<int:item_id>', methods = ['POST'])
 def update_quantity(item_id):
     cart = session.get('cart', {})
     item_id_str = str(item_id)
@@ -184,22 +163,10 @@ def checkout():
         flash("Please log in to place an order.", "warning")
         return redirect(url_for('main.login'))
         
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT u.name, u.email, u.phone_number,
-               u.addressID
-        FROM user u
-        WHERE u.userID = %s
-    """, (user_id,))    
-    user_details = cur.fetchone()
+    
+    user_details = get_user_details_by_id(user_id)
 
-    cur.execute("""
-    SELECT a.addressID, a.street_name, a.city, a.postcode, a.territory 
-    FROM address a
-    JOIN user u ON u.addressID = a.addressID 
-    WHERE u.userID = %s
-""", (user_id,))
-    addresses = cur.fetchall()
+    addresses = get_user_addresses(user_id)
 
 
     if user_details:
@@ -238,35 +205,18 @@ def checkout():
         addresses=addresses
     )
 
-
-        cur.execute("""
-            INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
-                                    payment_method, delivery_mode)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
-            user_id,
+        order_id = create_order(user_id,
             datetime.now(),
             address_id,
             'pending',
             total,
             payment_method,
-            delivery_option
-        ))
-        order_id = cur.lastrowid
+            delivery_option)
 
-        for item in cart.values():
-            cur.execute("""
-                INSERT INTO order_items (orderID, itemID, quantity, unit_price)
-                VALUES (%s, %s, %s, %s)
-            """, (
-                order_id,
-                item['itemID'],
-                item['quantity'],
-                item['price']
-            ))
+        add_order_items(
+                order_id, list(cart.values())
+            )
 
-        mysql.connection.commit()
-        cur.close()
 
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
@@ -307,20 +257,10 @@ def order_success():
 @main.route('/profile', methods=['GET', 'POST'])
 def profile():
     user_id = session['user_id']
-    cur = mysql.connection.cursor()
 
-    # Fetch current user information
-    cur.execute("""
-        SELECT u.name, u.email, u.phone_number,
-               a.street_name, a.city, a.postcode, a.territory
-        FROM user u
-        LEFT JOIN address a ON u.addressID = a.addressID
-        WHERE u.userID = %s
-    """, (user_id,))
-    user = cur.fetchone()
+    user = get_user_profile(user_id)
 
     if request.method == 'POST':
-        # Update user information from the form
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
@@ -329,26 +269,13 @@ def profile():
         postcode = request.form['postcode']
         territory = request.form['territory']
 
-        # Call the function to update user details in the database
         update_user_details(user_id, name, email, phone, street_name, city, postcode, territory)
         
         flash("Profile updated successfully!", "success")
         return redirect(url_for('main.profile'))
 
-    # Get past orders
-    cur.execute("""
-        SELECT o.orderID, o.order_date, o.total_amount, o.status,
-               i.name AS item_name, oi.quantity, oi.unit_price, oi.total_price
-        FROM user_order o
-        JOIN order_items oi ON o.orderID = oi.orderID
-        JOIN item i ON oi.itemID = i.itemID
-        WHERE o.userID = %s
-        ORDER BY o.order_date DESC
-    """, (user_id,))
-    raw_orders = cur.fetchall()
-    cur.close()
+    raw_orders = get_user_orders(user_id)
 
-    # Structure orders by orderID
     from collections import defaultdict
     orders = defaultdict(lambda: {"items": [], "order_date": None, "total": 0, "status": ""})
 

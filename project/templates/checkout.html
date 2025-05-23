@@ -63,13 +63,13 @@
         <tbody id="order-summary">
             {% for item in cart.values() %}
             {% set item_total = item.price * item.quantity %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td>${{ item.price }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ item_total }}</td>
-            </tr>
-            {% endfor %}
+         <tr>
+            <td>{{ item.name }}</td>
+            <td>${{ "%.2f"|format(item.price) }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ "%.2f"|format(item_total) }}</td>
+         </tr>
+        {% endfor %}
         </tbody>
     </table>
     
@@ -134,8 +134,8 @@
 
         </div>
         <div>
-            <input type="radio" id="apple-pay" name="payment-method" value="apple-pay">
-<label for="apple-pay">Apple Pay</label>
+            <input type="radio" id="apple_pay" name="payment-method" value="apple_pay">
+<label for="apple_pay">Apple Pay</label>
 
         </div>
         <div>
