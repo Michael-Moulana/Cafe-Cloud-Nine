@@ -87,6 +87,9 @@ def search_items(query='', category=''):
         sql += " WHERE " + " AND ".join(filters)
 
     cur.execute(sql, params)
+    results = cur.fetchall()
+    cur.close()
+    return results
 
 
 def get_item_by_id(item_id):
