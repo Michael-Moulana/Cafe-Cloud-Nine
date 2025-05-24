@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
 from .db import mysql
 from datetime import datetime
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
+
 import os
 from .decorators import admin_required
 
