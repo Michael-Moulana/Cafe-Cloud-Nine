@@ -87,6 +87,9 @@ def search_items(query='', category=''):
         sql += " WHERE " + " AND ".join(filters)
 
     cur.execute(sql, params)
+    results = cur.fetchall()
+    cur.close()
+    return results
 
 
 def get_item_by_id(item_id):
@@ -123,7 +126,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
