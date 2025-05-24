@@ -92,7 +92,7 @@
         {% for item in items %}
 <div class="col-md-4 mb-3">
     <div class="card">
-        <img src="{{ url_for('static', filename=item['image']) }}" class="card-img-top" alt="{{ item['name'] }}">
+        <img src="{{ url_for('static', filename='img/item' ~ item.itemID ~ '.jpeg') }}" alt="{{ item.name }}" class="card-img-top" >
         <div class="card-body">
             <h5 class="card-title">{{ item['name'] }}</h5>
             <a href="details/item{{ item[0] }}.html" class="custom-btn btn-success">View</a>
@@ -108,28 +108,30 @@
        
     </div>
 </div>
-
-<div id="carousel_slide" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000" style="border: none; box-shadow: none; background: transparent;">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <blockquote class="blockquote">
-                <p class="mb-0 fst-italic">"Amazing service and the coffee is always hot. Highly recommend!"</p>
-              </blockquote>
-              <p class="blockquote-footer mt-2">Alex R.</p>
-        </div>
-        <div class="carousel-item">
-            <blockquote class="blockquote">
-                <p class="mb-0 fst-italic">"Great food! The eco-delivery option is pretty cool"</p>
-              </blockquote>
-              <p class="blockquote-footer mt-2">Jamie L.</p>
-        </div>
-        <div class="carousel-item">
-            <blockquote class="blockquote">
-                <p class="mb-0 fst-italic">"Good service, helped out with my order. Super friendly!"</p>
-              </blockquote>
-              <p class="blockquote-footer mt-2">Sam K.</p>
+<div class = "d-flex justify-content-center">
+    
+    <div id="carousel_slide" class="carousel slide text-center" data-bs-ride="carousel" data-bs-interval="2000" style="border: none; box-shadow: none; background: transparent;">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <blockquote class="blockquote">
+                    <p class="mb-0 fst-italic">"Amazing service and the coffee is always hot. Highly recommend!"</p>
+                </blockquote>
+                <p class="blockquote-footer mt-2">Alex R.</p>
+            </div>
+            <div class="carousel-item">
+                <blockquote class="blockquote">
+                    <p class="mb-0 fst-italic">"Great food! The eco-delivery option is pretty cool"</p>
+                </blockquote>
+                <p class="blockquote-footer mt-2">Jamie L.</p>
+            </div>
+            <div class="carousel-item">
+                <blockquote class="blockquote">
+                    <p class="mb-0 fst-italic">"Good service, helped out with my order. Super friendly!"</p>
+                </blockquote>
+                <p class="blockquote-footer mt-2">Sam K.</p>
+            </div>
     </div>
-    </div>
+</div>
 {% endblock %}
 
     

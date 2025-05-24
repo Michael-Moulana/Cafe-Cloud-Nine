@@ -137,7 +137,7 @@ def remove_from_cart(item_id):
     return redirect(url_for('main.cart'))
 
 #This code updates the quantity of items
-@main.route('/update_quanitiy/<int:item_id>', methods = ['POST'])
+@main.route('/update_quantity/<int:item_id>', methods = ['POST'])
 def update_quantity(item_id):
     cart = session.get('cart', {})
     item_id_str = str(item_id)
