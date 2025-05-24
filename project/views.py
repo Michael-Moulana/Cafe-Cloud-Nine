@@ -64,13 +64,9 @@ def index():
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category)
 
-@main.route('/item1')
-def item1_page():
-    
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT itemID, name, price, description, image FROM item WHERE itemID = %s", (1,))
-    item_data = cur.fetchone()
-    cur.close()
+@main.route('/item/<int:item_id>')
+def item_detail_page(item_id):
+    item_data = get_item_by_id(item_id)
     
     cart_items = session.get('cart', {})
     cart_item_count = sum(item['quantity'] for item in cart_items.values())
@@ -79,7 +75,7 @@ def item1_page():
         flash("Item not found.")
         return redirect(url_for('main.index'))
         
-    return render_template('item1.html', item=item_data, cart_item_count=cart_item_count)
+    return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
 
 
 

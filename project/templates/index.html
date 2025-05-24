@@ -95,7 +95,7 @@
         <img src="{{ url_for('static', filename='img/item' ~ item.itemID ~ '.jpeg') }}" alt="{{ item.name }}" class="card-img-top" >
         <div class="card-body">
             <h5 class="card-title">{{ item['name'] }}</h5>
-            <a href="details/item{{ item[0] }}.html" class="custom-btn btn-success">View</a>
+            <a href="{{ url_for('main.item_detail_page', item_id=item['itemID']) }}" class="custom-btn btn-success">View</a>
             <form action="{{ url_for('main.add_to_cart', item_id=item['itemID']) }}" method="POST" style="display: inline;">
                 <button type="submit" class="custom-btn btn-success">Add to Cart</button>
             </form>
