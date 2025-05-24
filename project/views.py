@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, jsonify, redirect, session, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
 from .db import mysql
 from datetime import datetime
 import os
@@ -75,7 +75,7 @@ def item1_page():
 
     if not item_data:
         flash("Item not found.")
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
         
     return render_template('item1.html', item=item_data, cart_item_count=cart_item_count)
 
@@ -117,8 +117,15 @@ def add_to_cart(item_id):
 
         session['cart'] = cart
         flash(f"Added {item['name']} to cart!")
+    else:
+        flash("Item not found.", "error")
 
-    return redirect(url_for('main.index'))
+    next_url = request.referrer
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(url_for('main.index'))
+   
 
 #This code allows the user to remove items
 @main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])

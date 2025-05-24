@@ -133,7 +133,7 @@ DELIMITER ;
 
 
 
-INSERT INTO item (name, price, description, category, image_url) VALUES
+INSERT INTO item (name, price, description, category, image) VALUES
 ('Avocado on Toast', 20, 'Fresh avocado served on crispy toast.','breakfast', 'img/item1.jpeg'),
 ('French Toast', 19, 'Classic French toast with syrup.', 'breakfast', 'img/item2.jpeg'),
 ('Iced Coffee', 8, 'Chilled coffee with ice.', 'drinks', 'img/item3.jpeg'),

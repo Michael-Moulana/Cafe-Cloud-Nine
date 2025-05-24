@@ -26,18 +26,18 @@
 
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.home') }}">Cafe Cloud Nine</a>
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">Cafe Cloud Nine</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {# Use url_for for Flask routes #}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">HOME</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">HOME</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">ABOUT US</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.view_cart') }}">CART (<span>{{ cart_item_count|default(0) }}</span>)</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART (<span>{{ cart_item_count|default(0) }}</span>)</a></li>
                 {% if session.user_id %}
                     <li class="nav-item"><a class="nav-link" href="#">Hello, {{ session.user_name }}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">LOGOUT</a></li>
