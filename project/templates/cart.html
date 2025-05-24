@@ -49,27 +49,73 @@
             margin-top: 20px;
         }
 
-        .remove-btn {
-            color: red;
-            cursor: pointer;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .remove-btn:hover {
-            text-decoration: underline;
-        }
 
         .clear-btn {
-            color: red;
+            background: #87CEFA;
+            color: black;
+            border: none;
+            padding: 5px 5px;
+            font-size: 14px;
             cursor: pointer;
-            font-weight: bold;
-            text-align: center;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .clear-btn:hover {
-            text-decoration: underline;
+            background: #62b6f0;
+            text-decoration: none;
         }
+
+        .clear-btn:active {
+            transform: scale(0.95);
+        }
+
+        .update-btn {
+            background: #87CEFA;
+            color: white;
+            border: none;
+            padding: 5px 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .update-btn:hover {
+            background: #62b6f0;
+            text-decoration: none;
+        }
+
+        .update-btn:active {
+            transform: scale(0.95);
+        }
+
+        .remove-btn {
+            background: #87CEFA;
+            color: black;
+            border: none;
+            padding: 5px 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .remove-btn:hover {
+            background: #62b6f0;
+            text-decoration: none;
+        }
+
+        .remove-btn:active {
+            transform: scale(0.95);
+        }
+
 
         .item-info{
             flex-grow: 1;
@@ -89,46 +135,57 @@
   <p class="text-muted">Review your selected items before proceeding to checkout.</p>
 
   {% if cart %}
-  <div id="cart-items">
-    {% for item in cart.values() %}
-    <div class="cart-item">
-      <img src="{{ url_for('static', filename='img/item' ~ item.itemID ~ '.jpeg') }}" alt="{{ item.name }}">
-      <div class="item-info">
-        <p><strong>{{ item.name }}</strong></p>
-        <p>${{ item.price }}</p>
+    <div id="cart-items">
+      {% for item in cart.values() %}
+      <div class="cart-item">
+        <img src="{{ url_for('static', filename='img/item' ~ item.itemID ~ '.jpeg') }}" alt="{{ item.name }}">
+        <div class="item-info">
+          <p><strong>{{ item.name }}</strong></p>
+          <p>${{ item.price }}</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: flex-end;">
+          <form action="{{ url_for('main.update_quantity', item_id=item.itemID) }}" method="POST" style="display: flex; align-items: center; justify-content: flex-end;">
+            <input type="number"
+                  name="quantity"
+                  value="{{ item.quantity }}"
+                  min="1" max="10"
+                  style="width: 60px; text-align: center; margin-right: 15px" />
+            <button type="submit" class="update-btn">Update</button>
+          </form>
+
+          <form action = "{{ url_for('main.remove_from_cart', item_id = item['itemID'])}}" method = "POST">
+            <button type = "submit" class="remove-btn">Remove</button>
+          </form>
+        </div>
       </div>
-      <div style="display: flex; align-items: center; justify-content: flex-end;">
-        <form class="quantity-form">
-          <input type="number"
-                 style="width: 60px; text-align: center; margin-right: 15px"
-                 value="{{ item.quantity }}"
-                 min="1" max="10"
-                 data-price="{{ item.price }}"
-                 data-item="item{{ item.itemID }}" />
-        </form>
-        <form action = "{{ url_for('main.remove_from_cart', item_id = item['itemID'])}}" method = "POST">
-          <button type = "submit" class="remove-btn">Remove</button>
-        </form>
-      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-<!--i need to add a quantity update button-->
+
+          <form action="{{ url_for('main.clear_cart')}}" method = "POST" style = "display: inline;">
+            <button type = "submit" class = "clear-btn" >Clear Cart</button>
+          </form>
 
 
-  <div style="margin-top: 50px; margin-bottom: 50px">
-    <p style="text-align: right">Total: <span class="cart-total">${{ total }}</span></p>
-  </div>
+    <div style="margin-top: 50px; margin-bottom: 0px">
+      <p style="text-align: right">Total: <span class="cart-total">${{ total }}</span></p>
+    </div>
 
-  <div class="cart-actions">
-    <a href="{{ url_for('main.menu') }}" class="custom-btn">Continue Shopping</a>
-    <a href="{{ url_for('main.checkout') }}" class="custom-btn" style="margin-bottom: 50px">Proceed to Checkout</a>
 
-    <form action="{{ url_for('main.clear_cart')}}" method = "POST" style = "display: inline;">
-      <button type = "submit" class = "clear-btn" style="margin-bottom: 50px;">Clear Cart</button>
-    </form>
+    <div class="cart-actions">
 
-  </div>
+
+
+      <a href="{{ url_for('main.menu') }}" class="custom-btn" style = "margin-bottom: 50px">Continue Shopping</a>
+      <a href="{{ url_for('main.checkout') }}" class="custom-btn" style="margin-bottom: 50px"
+        
+        {% if not cart or cart|length == 0 %}
+        style = "pointer-events: none; opacity: 0.5;"
+        title = "Your cart is empty"
+        {% endif %}>Proceed to Checkout</a>
+
+
+
+    </div>
   {% else %}
   <p>Your cart is empty.</p>
   {% endif %}

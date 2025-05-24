@@ -153,6 +153,9 @@ def clear_cart():
 @main.route('/checkout', methods = ['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
+    if not cart:
+        flash("Your cart is empty. Please add items before proceeding to checkout.")
+        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
     delivery_option = 'standard-delivery'
     delivery_fee = 5
