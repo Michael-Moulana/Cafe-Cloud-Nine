@@ -88,6 +88,60 @@ body {
   transform: scale(0.95);
 }
 
+.custom-btn-update {
+  background: #87cefa;
+  color: white;
+  border: none;
+  padding: 10px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.3s, transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.custom-btn-update:hover {
+  background: #62b6f0;
+  text-decoration: none;
+}
+
+.custom-btn-delete {
+  background: #ff6868;
+  color: white;
+  border: none;
+  padding: 10px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.3s, transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.custom-btn-delete:hover {
+  background: #f04747;
+  text-decoration: none;
+}
+
+.custom-btn-success {
+  background: #80dd8c;
+  color: white;
+  border: none;
+  padding: 10px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.3s, transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.custom-btn-success:hover {
+  background: #6dc379;
+  text-decoration: none;
+}
+
 .navbar .login-btn {
   background: #87cefa;
   color: white;
