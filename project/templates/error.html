@@ -6,9 +6,8 @@
   }
 </style>
 {% endblock %} {% block content %}
-<div class="container mt-4">
-  <h2>ERROR</h2>
-
-  <!-- Form for editing user profile -->
+<div class="container text-center mt-5">
+  <h1>Error {{ error_code }}</h1>
+  <p class="lead">{{ error_message }}</p>
 </div>
 {% endblock %}

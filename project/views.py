@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, jsonify, redirect, session, request, url_for, flash
+
+from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
 from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
 from .db import mysql
 from datetime import datetime
+
 import os
 from .decorators import admin_required
 
@@ -181,6 +183,9 @@ def clear_cart():
 @main.route('/checkout', methods = ['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
+    if not cart:
+        flash("Your cart is empty. Please add items before proceeding to checkout.")
+        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
     delivery_option = 'standard-delivery'
     delivery_fee = 5
@@ -239,6 +244,7 @@ def checkout():
             'pending',
             total,
             payment_method,
+            
             delivery_option)
 
         add_order_items(
@@ -385,26 +391,20 @@ def delete_item(item_id):
     return redirect(url_for('main.admin'))
 
 
+# test error routes
+# @main.route('/error/400')
+# def trigger_400():
+#     abort(400)
 
+# @main.route('/error/401')
+# def trigger_401():
+#     abort(401)
 
+# @main.route('/error/403')
+# def trigger_403():
+#     abort(403)
 
-# error routes
-@main.route('/error')
-def error():
-    return render_template('error.html'), 403  # 403 Forbidden status code
+# @main.route('/error/404')
+# def trigger_404():
+#     abort(404)
 
-@main.route('/test_db')
-def test_db_connection():
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT VERSION()") # A simple query that should always work if connected
-        db_version = cur.fetchone()
-        cur.close()
-        if db_version:
-            return jsonify(message="Successfully connected to MySQL!", version=db_version)
-        else:
-            return jsonify(message="Connected, but no version info retrieved."), 500
-    except Exception as e:
-        # Print the full error to the Flask console for debugging
-        print(f"Database connection error: {e}")
-        return jsonify(error=str(e)), 500
