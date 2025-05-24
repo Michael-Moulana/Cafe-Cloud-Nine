@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
@@ -10,6 +11,8 @@ from .decorators import admin_required
 
 
 main = Blueprint("main", __name__)
+
+
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -61,6 +64,25 @@ def index():
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category)
 
+@main.route('/item1')
+def item1_page():
+    
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT itemID, name, price, description, image FROM item WHERE itemID = %s", (1,))
+    item_data = cur.fetchone()
+    cur.close()
+    
+    cart_items = session.get('cart', {})
+    cart_item_count = sum(item['quantity'] for item in cart_items.values())
+
+    if not item_data:
+        flash("Item not found.")
+        return redirect(url_for('main.index'))
+        
+    return render_template('item1.html', item=item_data, cart_item_count=cart_item_count)
+
+
+
 @main.route('/about')
 def about():
     return render_template('about.html')
@@ -97,8 +119,15 @@ def add_to_cart(item_id):
 
         session['cart'] = cart
         flash(f"Added {item['name']} to cart!")
+    else:
+        flash("Item not found.", "error")
 
-    return redirect(url_for('main.index'))
+    next_url = request.referrer
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(url_for('main.index'))
+   
 
 #This code allows the user to remove items
 @main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])
@@ -115,6 +144,7 @@ def remove_from_cart(item_id):
         flash("item not found.")
     
     return redirect(url_for('main.cart'))
+
 
 #This code updates the quantity of items
 @main.route('/update_quantity/<int:item_id>', methods = ['POST'])
@@ -378,6 +408,3 @@ def delete_item(item_id):
 # def trigger_404():
 #     abort(404)
 
-# @main.route('/error/500')
-# def trigger_500():
-#     abort(500)
