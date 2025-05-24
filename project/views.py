@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status
 from .db import mysql
 from datetime import datetime
 
@@ -346,12 +346,14 @@ def update_profile():
 @admin_required
 def admin():
     items = get_all_items()
+    orders = get_all_user_orders()
+    print(orders)
 
     # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
     image_list = os.listdir(image_dir) if os.path.exists(image_dir) else []
 
-    return render_template('admin.html', items=items, image_list=image_list)
+    return render_template('admin.html', items=items, image_list=image_list, orders=orders)
 
 @main.route("/admin/update/<int:item_id>", methods=["POST"])
 @admin_required
@@ -386,6 +388,14 @@ def delete_item(item_id):
     flash("Item deleted successfully.")
     return redirect(url_for('main.admin'))
 
+
+@main.route('/admin/order/<int:order_id>', methods=['POST'])
+@admin_required
+def update_order_status_route(order_id):
+    new_status = request.form.get('status')
+    update_order_status(order_id, new_status)
+    flash(f"Order {order_id} status updated to '{new_status}'.")
+    return redirect(url_for('main.admin'))
 
 # test error routes
 # @main.route('/error/400')
