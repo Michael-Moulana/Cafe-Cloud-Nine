@@ -403,4 +403,3 @@ def delete_item(item_id):
 # @main.route('/error/404')
 # def trigger_404():
 #     abort(404)
-
