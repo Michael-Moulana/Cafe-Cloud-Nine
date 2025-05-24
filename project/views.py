@@ -73,7 +73,7 @@ def item_detail_page(item_id):
         flash("Item not found.")
         return redirect(url_for('main.index'))
         
-    return render_template('item1.html', item=item_data, cart_item_count=cart_item_count)
+    return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
 
 
 
