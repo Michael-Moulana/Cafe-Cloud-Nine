@@ -126,7 +126,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (

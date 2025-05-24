@@ -1,8 +1,8 @@
 from flask import Flask
-from flask_mysqldb import MySQL
 from .db import mysql
 from .views import main
 from datetime import timedelta
+from .errors import register_error_handlers
 
 def create_app():
     
@@ -23,5 +23,7 @@ def create_app():
 
     # Register Blueprints
     app.register_blueprint(main)
+
+    register_error_handlers(app)
 
     return app
