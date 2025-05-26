@@ -75,6 +75,14 @@ CREATE TABLE inquiry (
     response TEXT DEFAULT NULL
 ) ENGINE=InnoDB;
 
+CREATE TABLE review(
+    reviewID INT AUTO_INCREMENT PRIMARY KEY,
+    userID INT NOT NULL,
+    review_text TEXT NOT NULL,
+    FOREIGN KEY (userID) REFERENCES user(userID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
 CREATE TABLE carousel (
     carouselImgID INT auto_increment primary key,
     carouselImg_url TEXT
@@ -153,8 +161,6 @@ INSERT INTO user (name, phone_number, email, role, addressID) VALUES
 ('Bob Johnson', '0498765432', 'bob@example.com', 'admin', 2),
 ('Charlie Lee', '0422334455', 'charlie@example.com', 'customer', 3);
 
-insert into user (name, phone_number, email, role, password) values ('admin1', '123456789', 'admin1@gmail.com', 'admin', '123');
-
 INSERT INTO user_order (userID, order_date, delivery_address, delivery_mode, payment_method)
 SELECT 
     u.userID,
@@ -173,9 +179,11 @@ SELECT 1, 2, 1, price FROM item WHERE itemID = 2
 UNION ALL
 SELECT 1, 3, 3, price FROM item WHERE itemID = 3;
 
-INSERT into carousel (carouselImg_url) values 
+INSERT INTO carousel (carouselImg_url) VALUES
 ('img/carousel-item1.jpg'), 
 ('img/carousel-item2.jpg'),
 ('img/carousel-item3.jpg'),
 ('img/carousel-item4.jpg');
+
+INSERT INTO review(userID, review_text) VALUES (1, "Amazing service and the coffee is always hot. Highly recommend!"), (2, "Great food! The eco-delivery option is pretty cool") ;
 

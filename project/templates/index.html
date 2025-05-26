@@ -13,13 +13,17 @@
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     overflow: hidden;
+    margin-top: 0 !important;
+    margin-bottom: 0;
 }
 
 .carousel-inner img {
     width: 100%;
-    height: 500px;
+    height: 550px;
     object-fit: cover;
+    margin-top: 0;
 }
+
 .carousel-control-prev,
 .carousel-control-next {
     position: absolute;
@@ -35,9 +39,7 @@
 {% endblock %}
 {% block content %}
 
-<div class="cafe-name" >
-    Cafe Cloud Nine
-</div>
+
 
 <div class="carousel-wrapper" style="width: 100vw; margin-left: calc(-50vw + 50%); overflow-x: hidden;">
     <div id="carouselAds" class="carousel slide position-relative" data-bs-ride="carousel" data-bs-interval="2000">
@@ -63,6 +65,9 @@
     </div>
 </div>
 
+<div class="cafe-name" style="margin-top: 80px; margin-bottom: 50px;">
+    Cafe Cloud Nine
+</div>
 
 <!-- Search and Filter Inputs -->
 <div class="container my-3">
@@ -108,29 +113,22 @@
        
     </div>
 </div>
+
 <div class = "d-flex justify-content-center">
     
     <div id="carousel_slide" class="carousel slide text-center" data-bs-ride="carousel" data-bs-interval="2000" style="border: none; box-shadow: none; background: transparent;">
         <div class="carousel-inner">
+                  {% for review in reviews %}
+
             <div class="carousel-item active">
                 <blockquote class="blockquote">
-                    <p class="mb-0 fst-italic">"Amazing service and the coffee is always hot. Highly recommend!"</p>
+                                  <p class="mb-0 fst-italic">{{ review.review_text }}</p>
                 </blockquote>
-                <p class="blockquote-footer mt-2">Alex R.</p>
+            <p class="blockquote-footer mt-2">{{ review.name }}</p>
             </div>
-            <div class="carousel-item">
-                <blockquote class="blockquote">
-                    <p class="mb-0 fst-italic">"Great food! The eco-delivery option is pretty cool"</p>
-                </blockquote>
-                <p class="blockquote-footer mt-2">Jamie L.</p>
-            </div>
-            <div class="carousel-item">
-                <blockquote class="blockquote">
-                    <p class="mb-0 fst-italic">"Good service, helped out with my order. Super friendly!"</p>
-                </blockquote>
-                <p class="blockquote-footer mt-2">Sam K.</p>
-            </div>
-    </div>
+                  {% endfor %}
+
+        </div>
 </div>
 {% endblock %}
 

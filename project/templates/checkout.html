@@ -76,12 +76,49 @@
 </div>
 
 <!-- Recipient's Details Form -->
-<div class="container2 form-section">
-    <h3>Recipient Details</h3>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container2">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+<!-- Delivery Options -->
+
+    <div class="container2 delivery-options">
+        <h3>Choose Delivery Option</h3>
+        <form method="POST" action="{{ url_for('main.select_delivery_option') }}">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="deliveryOption" id="standard-delivery" value="standard-delivery" required
+                       {% if delivery_option == 'standard-delivery' %}checked{% endif %}>
+                <label class="form-check-label" for="standard-delivery">Standard Delivery - $5</label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="deliveryOption" id="express-delivery" value="express-delivery"
+                       {% if delivery_option == 'express-delivery' %}checked{% endif %}>
+                <label class="form-check-label" for="express-delivery">Express Delivery - $10</label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="deliveryOption" id="eco-delivery" value="eco-delivery"
+                       {% if delivery_option == 'eco-delivery' %}checked{% endif %}>
+                <label class="form-check-label" for="eco-delivery">Eco-Friendly Delivery - $3</label>
+            </div>
+            <button type="submit" class="btn btn-outline-primary mt-3">Select</button
+            
+        </form>
+    </div>
     <form id="recipient-form" method="POST" action="{{ url_for('main.checkout') }}">
+        <div class="container2 form-section">
+            <h3>Recipient Details</h3>
+
         <div class="mb-3">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ user_details.name }}">
+            <label for="name" class="form-label">Full Name</label>   
+            <input type="text" class="form-control" id="name" name="name" value="{{ user_details.name }}" pattern="^[A-Za-z\s]+$">
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
@@ -89,11 +126,11 @@
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user_details.phone_number }}">
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user_details.phone_number }}" pattern="^0[0-9]{9}$" >
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Delivery Address</label>
-            <select class="form-control" id="address" name="address">
+            <select class="form-control" id="address" name="address" required>
                 <option value="">Select an address</option> <!-- Optional default option -->
                 {% for address in addresses %}
                     <option value="{{ address.addressID }}">
@@ -102,25 +139,7 @@
                 {% endfor %}
             </select>
         </div>
-   
-
-<!-- Delivery Options -->
-<div class="container2 delivery-options">
-    <h3>Delivery Options</h3>
-    <div class="form-check mb-2">
-        <input class="form-check-input" type="radio" name="deliveryOption" id="standard-delivery" value="standard-delivery" required>
-        <label class="form-check-label" for="standard-delivery">Standard Delivery - $5</label>
-    </div>
-    <div class="form-check mb-2">
-        <input class="form-check-input" type="radio" name="deliveryOption" id="express-delivery" value="express-delivery">
-
-        <label class="form-check-label" for="express-delivery">Express Delivery - $10</label>
-    </div>
-    <div class="form-check mb-2">
-        <input class="form-check-input" type="radio" name="deliveryOption" id="eco-delivery" value="eco-delivery">
-        <label class="form-check-label" for="eco-delivery">Eco-Friendly Delivery - $3</label>
-    </div>
-</div>
+   </div>
 
 
 <!-- Payment Method -->
@@ -145,8 +164,9 @@
     </div>
 
 </form>
+</div>
 
-    <div class="checkout-total" style="font-size: 16px">
+    <div class="container2 form-section checkout-total" style="font-size: 16px">
         <p>Subtotal: $<span id="subtotal">{{ subtotal }}</span></p>
         <p>Delivery Fee: $<span id="delivery-fee">{{ delivery_fee }}</span></p>
         <p><strong>Total: $<span id="total-price">{{ subtotal + delivery_fee }}</span></strong></p>
@@ -154,27 +174,16 @@
 
     <button type="submit" class="custom-btn" style="margin-top: 50px;">Place Order</button>
 
-    
-</div>
+   </div>
+
 </div>
 
 
         
 </div>
 
-</div>
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="container2">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+
+
  
 
 {% endblock %}
