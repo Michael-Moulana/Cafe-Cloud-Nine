@@ -279,3 +279,22 @@ def update_order_status(order_id, new_status):
         raise
     finally:
         cur.close()
+
+def get_category_enum_values():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'item' AND COLUMN_NAME = 'category'
+    """)
+    row = cur.fetchone()
+    cur.close()
+
+    if row:
+        enum_str = row['COLUMN_TYPE']  # e.g., "enum('drinks','breakfast','main course')"
+        # Extract inside enum(...)
+        enum_values = enum_str[6:-1]  # remove "enum(" from start and ")" from end
+        # Split while preserving phrases with spaces
+        values = [v.strip("'") for v in enum_values.split(",")]
+        return values
+    return []

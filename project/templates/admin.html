@@ -183,4 +183,49 @@
     </tbody>
   </table>
 </div>
+
+
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Category Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for category in category_list %}
+      <tr>
+        <form method="POST" action="{{ url_for('main.update_category', old_category=category) }}">
+          <td>{{ loop.index }}</td>
+          <td>
+            <input type="text" name="new_category" value="{{ category }}" class="form-control form-control-sm" required />
+          </td>
+          <td>
+            <button type="submit" class="btn-sm custom-btn-update">Rename</button>
+            <a href="{{ url_for('main.delete_category', category=category) }}" class="btn-sm custom-btn-delete"
+               onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
+          </td>
+        </form>
+      </tr>
+      {% endfor %}
+
+      <!-- Add New Category -->
+      <tr>
+        <form method="POST" action="{{ url_for('main.add_category') }}">
+          <td>New</td>
+          <td>
+            <input type="text" name="new_category" placeholder="Enter new category" class="form-control form-control-sm" required />
+          </td>
+          <td>
+            <button type="submit" class="btn-sm custom-btn-success">Add</button>
+          </td>
+        </form>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 {% endblock %}
