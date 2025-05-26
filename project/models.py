@@ -280,6 +280,8 @@ def update_order_status(order_id, new_status):
     finally:
         cur.close()
 
+
+
 def get_category_enum_values():
     cur = mysql.connection.cursor()
     cur.execute("""
@@ -298,3 +300,16 @@ def get_category_enum_values():
         values = [v.strip("'") for v in enum_values.split(",")]
         return values
     return []
+
+def update_enum_categories(new_enum_list):
+    """
+    Updates the ENUM values of the 'category' column in 'item' table.
+    WARNING: this alters the table structure.
+    """
+    enum_str = ','.join([f"'{val}'" for val in new_enum_list])
+    cur = mysql.connection.cursor()
+    cur.execute(f"""
+        ALTER TABLE item MODIFY COLUMN category ENUM({enum_str}) NOT NULL
+    """)
+    mysql.connection.commit()
+    cur.close()
