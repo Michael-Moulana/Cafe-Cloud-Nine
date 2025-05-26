@@ -67,7 +67,7 @@ body {
 }
 
 .custom-btn {
-  background: #87cefa;
+  background: #62b6f0;
   color: white;
   border: none;
   padding: 15px 15px;
@@ -80,7 +80,7 @@ body {
 }
 
 .custom-btn:hover {
-  background: #62b6f0;
+  background: #398bc5;
   text-decoration: none;
 }
 
