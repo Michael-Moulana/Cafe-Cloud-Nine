@@ -77,6 +77,20 @@ def item_detail_page(item_id):
         
     return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
 
+@main.route('/item/<int:item_id>/add_comment', methods=['POST'])
+def add_comment_route(item_id):
+
+    user_id = session['user_id']
+    comment_text = request.form.get('comment_text')
+
+    if not comment_text or not comment_text.strip():
+        flash("Comment cannot be empty.", "danger")
+    else:
+        add_comment(item_id, user_id, comment_text)
+        flash("Comment added successfully!", "success")
+    
+    return redirect(url_for('main.item_detail_page', item_id=item_id))
+
 
 
 @main.route('/about')
@@ -101,20 +115,35 @@ def cart():
 def add_to_cart(item_id):
     item=get_item_by_id(item_id)
 
+    if not item:
+        flash("Invalid item.", "danger")
+        return redirect(request.referrer or url_for('main.index'))
+
+    try:
+        quantity_str = request.form.get('quantity', '1') # getting quantity from form, default 1
+        quantity = int(quantity_str)
+    except ValueError:
+        flash("Invalid quantity. Please enter a number.", "danger")
+        return redirect(url_for('main.item_detail_page', item_id=item_id)) # Redirect back to item page
+
+    if quantity <= 0:
+        flash("Quantity must be at least 1.", "danger")
+        return redirect(url_for('main.item_detail_page', item_id=item_id))
+
     if item:
         cart = session.get('cart', {})
         if str(item_id) in cart:
-            cart[str(item_id)]['quantity'] += 1
+            cart[str(item_id)]['quantity'] += quantity
         else:
             cart[str(item_id)] = {
                 'itemID': item['itemID'],
                 'name': item['name'],
                 'price': float(item['price']),
-                'quantity': 1
+                'quantity': quantity
             }
 
         session['cart'] = cart
-        flash(f"Added {item['name']} to cart!")
+        flash(f"Added {quantity} of {item['name']} to cart!")
     else:
         flash("Item not found.", "error")
 
@@ -142,7 +171,7 @@ def remove_from_cart(item_id):
     return redirect(url_for('main.cart'))
 
 
-#This code updates the quantity of items
+# updates the quantity of items
 @main.route('/update_quantity/<int:item_id>', methods = ['POST'])
 def update_quantity(item_id):
     cart = session.get('cart', {})
@@ -168,7 +197,7 @@ def update_quantity(item_id):
     session['cart'] = cart
     return redirect(url_for('main.cart'))
 
-#This code allows the user to empty the cart
+# allows the user to empty the cart
 @main.route('/clear_cart', methods = ['POST'])
 def clear_cart():
     session['cart'] = {}
