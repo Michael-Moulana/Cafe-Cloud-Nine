@@ -2,7 +2,10 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status, get_reviews, insert_inquiry
+
+import re
+
 from .db import mysql
 from datetime import datetime
 
@@ -61,8 +64,10 @@ def index():
     category = request.args.get('category', '').strip()
     
     items = search_items(query, category)
+
+    reviews = get_reviews()
     
-    return render_template("index.html", items=items, carousels=carousels, query=query, category=category)
+    return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
 
 @main.route('/item/<int:item_id>')
 def item_detail_page(item_id):
@@ -205,94 +210,77 @@ def clear_cart():
     return redirect(url_for('main.cart'))
 
 
-@main.route('/checkout', methods = ['GET', 'POST'])
+@main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
     if not cart:
         flash("Your cart is empty. Please add items before proceeding to checkout.")
         return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
-    delivery_option = 'standard-delivery'
-    delivery_fee = 5
-    payment_method = 'card'
+
+    delivery_option = session.get('delivery_option', 'standard-delivery')
+
+    # Calculate delivery fee based on stored option
+    if delivery_option == 'standard-delivery':
+        delivery_fee = 5
+    elif delivery_option == 'express-delivery':
+        delivery_fee = 10
+    elif delivery_option == 'eco-delivery':
+        delivery_fee = 3
+    else:
+        delivery_fee = 5
+
+    total = subtotal + delivery_fee
 
     user_id = session.get('user_id')
     if not user_id:
         flash("Please log in to place an order.", "warning")
         return redirect(url_for('main.login'))
-        
-    
-    user_details = get_user_details_by_id(user_id)
 
+    user_details = get_user_details_by_id(user_id)
     addresses = get_user_addresses(user_id)
 
-
-    if user_details:
-        name, email, phone, addressID  = user_details        
-
     if request.method == 'POST':
+        # validate & process the main checkout form
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
         address_id = request.form.get('address')
-        print(f"Address ID: { address_id}")
-        delivery_option = request.form.get('deliveryOption')
         payment_method = request.form.get('payment-method')
-
-        # Update delivery fee
-        if delivery_option == 'standard-delivery':
-            delivery_fee = 5
-        elif delivery_option == 'express-delivery':
-            delivery_fee = 10
-        elif delivery_option == 'eco-delivery':
-            delivery_fee = 3
-
-        total = subtotal + delivery_fee
 
         if not all([name, email, phone, address_id, delivery_option, payment_method]):
             flash("All fields are required. Please complete the form.", "danger")
             return render_template(
-        'checkout.html',
-        cart=cart,
-        subtotal=subtotal,
-        delivery_fee=delivery_fee,
-        total=total,
-        delivery_option=delivery_option,
-        payment_method=payment_method,
-        user_details=user_details,
-        addresses=addresses
-    )
+                'checkout.html',
+                cart=cart,
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total,
+                delivery_option=delivery_option,
+                payment_method=payment_method,
+                user_details=user_details,
+                addresses=addresses
+            )
 
-        order_id = create_order(user_id,
+        order_id = create_order(
+            user_id,
             datetime.now(),
             address_id,
             'pending',
             total,
             payment_method,
-            
-            delivery_option)
+            delivery_option
+        )
 
         add_order_items(
                 order_id, list(cart.values())
             )
 
 
+        add_order_items(order_id, list(cart.values()))
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
         return redirect(url_for('main.order_success'))
-    
-        
-
-    else:
-        if delivery_option == 'standard-delivery':
-            delivery_fee = 5
-        elif delivery_option == 'express-delivery':
-            delivery_fee = 10
-        elif delivery_option == 'eco-delivery':
-            delivery_fee = 3
-        
-
-    total = subtotal + delivery_fee
 
     return render_template(
         'checkout.html',
@@ -301,10 +289,19 @@ def checkout():
         delivery_fee=delivery_fee,
         total=total,
         delivery_option=delivery_option,
-        payment_method=payment_method,
+        payment_method='card',  # or fetch from session
         user_details=user_details,
         addresses=addresses
     )
+
+
+@main.route('/select_delivery_option', methods=['POST'])
+def select_delivery_option():
+    delivery_option = request.form.get('deliveryOption')
+
+    session['delivery_option'] = delivery_option
+    flash("Delivery option updated.", "info")
+    return redirect(url_for('main.checkout'))
 
 
 
@@ -352,22 +349,20 @@ def profile():
 
     return render_template("profile.html", user=user, orders=orders)
 
-@main.route('/update_profile', methods=['POST'])
-def update_profile():
 
-    user_id = session['user_id']
-    name = request.form['name']
-    email = request.form['email']
-    phone = request.form['phone']
-    street_name = request.form['address']
-    city = request.form['city']
-    postcode = request.form['postcode']
-    territory = request.form['territory']
+@main.route('/contact', methods=['GET', 'POST'])
+def add_contact():
+        if request.method == 'POST':
+           name = request.form['name']
+           email = request.form['email']
+           subject = request.form['subject']
+           message = request.form['message']
 
-    update_user_details(user_id, name, email, phone, street_name, city, postcode, territory)
-    
-    flash("Profile updated successfully!", "success")
-    return redirect(url_for('main.profile'))
+           insert_inquiry(name, email, subject, message)
+
+           flash("Your Message has been sent successfully!", "success")
+           return redirect(url_for('main.contact'))
+        return render_template('contact.html')
 
 
 # admin routes

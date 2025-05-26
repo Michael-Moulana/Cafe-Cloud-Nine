@@ -34,7 +34,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">ABOUT US</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.menu') }}">MENU</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART <!--(<span >2</span>)--></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.cart') }}">CART (<span >cart-total</span>)</a></li>
                     {% if 'user_id' in session %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">PROFILE</a></li>
                     <li class="nav-item"><a class="nav-link login-btn" href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-right me-1"></i> LOGOUT</a></li>
