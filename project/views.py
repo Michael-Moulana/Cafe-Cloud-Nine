@@ -1,15 +1,21 @@
-from flask import Blueprint, render_template, redirect, session, request, url_for, flash
+
+from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_reviews, insert_inquiry
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status, get_reviews, insert_inquiry
+
 import re
+
 from .db import mysql
 from datetime import datetime
+
 import os
 from .decorators import admin_required
 
 
 main = Blueprint("main", __name__)
+
+
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -63,6 +69,21 @@ def index():
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
 
+@main.route('/item/<int:item_id>')
+def item_detail_page(item_id):
+    item_data = get_item_by_id(item_id)
+    
+    cart_items = session.get('cart', {})
+    cart_item_count = sum(item['quantity'] for item in cart_items.values())
+
+    if not item_data:
+        flash("Item not found.")
+        return redirect(url_for('main.index'))
+        
+    return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
+
+
+
 @main.route('/about')
 def about():
     return render_template('about.html')
@@ -99,8 +120,15 @@ def add_to_cart(item_id):
 
         session['cart'] = cart
         flash(f"Added {item['name']} to cart!")
+    else:
+        flash("Item not found.", "error")
 
-    return redirect(url_for('main.index'))
+    next_url = request.referrer
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(url_for('main.index'))
+   
 
 #This code allows the user to remove items
 @main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])
@@ -117,6 +145,7 @@ def remove_from_cart(item_id):
         flash("item not found.")
     
     return redirect(url_for('main.cart'))
+
 
 #This code updates the quantity of items
 @main.route('/update_quantity/<int:item_id>', methods = ['POST'])
@@ -155,6 +184,9 @@ def clear_cart():
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
+    if not cart:
+        flash("Your cart is empty. Please add items before proceeding to checkout.")
+        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
 
     delivery_option = session.get('delivery_option', 'standard-delivery')
@@ -210,6 +242,11 @@ def checkout():
             payment_method,
             delivery_option
         )
+
+        add_order_items(
+                order_id, list(cart.values())
+            )
+
 
         add_order_items(order_id, list(cart.values()))
         session['cart'] = {}
@@ -304,12 +341,14 @@ def add_contact():
 @admin_required
 def admin():
     items = get_all_items()
+    orders = get_all_user_orders()
+    print(orders)
 
     # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
     image_list = os.listdir(image_dir) if os.path.exists(image_dir) else []
 
-    return render_template('admin.html', items=items, image_list=image_list)
+    return render_template('admin.html', items=items, image_list=image_list, orders=orders)
 
 @main.route("/admin/update/<int:item_id>", methods=["POST"])
 @admin_required
@@ -345,8 +384,27 @@ def delete_item(item_id):
     return redirect(url_for('main.admin'))
 
 
+@main.route('/admin/order/<int:order_id>', methods=['POST'])
+@admin_required
+def update_order_status_route(order_id):
+    new_status = request.form.get('status')
+    update_order_status(order_id, new_status)
+    flash(f"Order {order_id} status updated to '{new_status}'.")
+    return redirect(url_for('main.admin'))
 
-# error routes
-@main.route('/error')
-def error():
-    return render_template('error.html'), 403  # 403 Forbidden status code
+# test error routes
+# @main.route('/error/400')
+# def trigger_400():
+#     abort(400)
+
+# @main.route('/error/401')
+# def trigger_401():
+#     abort(401)
+
+# @main.route('/error/403')
+# def trigger_403():
+#     abort(403)
+
+# @main.route('/error/404')
+# def trigger_404():
+#     abort(404)

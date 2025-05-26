@@ -123,7 +123,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
@@ -231,3 +231,67 @@ def insert_inquiry(name, email, subject, message):
     mysql.connection.commit()
     cur.close()
 
+# admin - orders
+def get_all_user_orders():
+    query = """
+        SELECT 
+            o.orderID,
+            o.order_date,
+            o.status,
+            o.total_amount,
+            o.payment_method,
+            o.delivery_mode,
+            u.name AS user_name,
+            u.email AS user_email,
+            u.phone_number,
+            CONCAT_WS(', ', a.street_name, a.city, a.postcode, a.territory) AS delivery_address
+        FROM user_order o
+        JOIN user u ON o.userID = u.userID
+        LEFT JOIN address a ON o.delivery_address = a.addressID
+        ORDER BY o.order_date DESC
+    """
+
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+
+    # Format each row
+    orders = []
+    for row in rows:
+        # Format datetime and decimal
+        row['order_date'] = row['order_date'].strftime("%d %b %Y, %H:%M") if row['order_date'] else 'N/A'
+        row['total_amount'] = f"${float(row['total_amount']):.2f}" if row['total_amount'] is not None else "$0.00"
+        orders.append(row)
+
+    return orders
+
+def get_order_items(order_id):
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT 
+            i.name AS item_name,
+            oi.quantity,
+            oi.unit_price,
+            oi.total_price
+        FROM order_items oi
+        JOIN item i ON oi.itemID = i.itemID
+        WHERE oi.orderID = %s
+    """
+    cur.execute(query, (order_id,))
+    rows = cur.fetchall()
+    columns = [desc[0] for desc in cur.description]
+    cur.close()
+
+    return [dict(zip(columns, row)) for row in rows]
+
+def update_order_status(order_id, new_status):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user_order SET status = %s WHERE orderID = %s", (new_status, order_id))
+        mysql.connection.commit()
+    except Exception as e:
+        logger.error(f"Failed to update order status: {e}")
+        raise
+    finally:
+        cur.close()
