@@ -30,21 +30,18 @@ def update_user_details(user_id, name, email, phone, street_name, city, postcode
     """, (user_id,))
     result = cur.fetchone()
 
-    if result['addressID']:  # If address exists for the user
-        # Update the existing address
+    if result['addressID']:  
         cur.execute("""
             UPDATE address
             SET street_name = %s, city = %s, postcode = %s, territory = %s
             WHERE addressID = %s
         """, (street_name, city, postcode, territory, result['addressID']))
-    else:  # If no address exists for the user
-        # Insert a new address and link it to the user
+    else:  
         cur.execute("""
             INSERT INTO address (street_name, city, postcode, territory)
             VALUES (%s, %s, %s, %s)
         """, (street_name, city, postcode, territory))
 
-        # Get the last inserted addressID and update the user table
         address_id = cur.lastrowid
         cur.execute("""
             UPDATE user
@@ -214,6 +211,25 @@ def remove_item_from_db(item_id):
     mysql.connection.commit()
     cur.close()
 
+def get_reviews():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT r.review_text, u.name
+        FROM review r
+        LEFT JOIN user u ON r.userID = u.userID
+    """)
+    reviews = cur.fetchall()
+    cur.close()
+    return reviews
+
+def insert_inquiry(name, email, subject, message):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (name, email, subject, message, datetime.now(), 'pending'))
+    mysql.connection.commit()
+    cur.close()
 
 # admin - orders
 def get_all_user_orders():
