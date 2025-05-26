@@ -40,7 +40,6 @@ CREATE TABLE user_order (
 );
 
 select * from user_order;
-select * from item;
 
 CREATE TABLE item (
     itemID INT AUTO_INCREMENT PRIMARY KEY,
@@ -50,6 +49,8 @@ CREATE TABLE item (
     image VARCHAR(255),  -- Store image path or URL
     category ENUM('drinks', 'breakfast', 'main course') NOT NULL
 ) ENGINE=InnoDB;
+
+select * from item;
 
 CREATE TABLE order_items (
     order_itemID INT AUTO_INCREMENT PRIMARY KEY,
@@ -158,7 +159,7 @@ INSERT INTO user_order (userID, order_date, delivery_address, delivery_mode, pay
 SELECT 
     u.userID,
     NOW(),
-    CONCAT(a.street_name, ', ', a.city, ', ', a.postcode, ', ', a.territory),
+    a.addressID,
     'eco-delivery',
     'cash'
 FROM user u
