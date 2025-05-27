@@ -79,19 +79,7 @@ def item_detail_page(item_id):
         
     return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
 
-@main.route('/item/<int:item_id>/add_comment', methods=['POST'])
-def add_comment_route(item_id):
 
-    user_id = session['user_id']
-    comment_text = request.form.get('comment_text')
-
-    if not comment_text or not comment_text.strip():
-        flash("Comment cannot be empty.", "danger")
-    else:
-        add_comment(item_id, user_id, comment_text)
-        flash("Comment added successfully!", "success")
-    
-    return redirect(url_for('main.item_detail_page', item_id=item_id))
 
 
 
