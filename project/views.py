@@ -5,7 +5,7 @@ from .forms import LoginForm, RegisterForm
 from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry
 from .db import mysql
 from datetime import datetime
-
+import re
 import os
 from .decorators import admin_required
 
