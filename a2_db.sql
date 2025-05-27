@@ -1,3 +1,4 @@
+
 CREATE DATABASE a2_db;
 
 use a2_db;
