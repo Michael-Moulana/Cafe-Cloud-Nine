@@ -12,7 +12,13 @@ from .decorators import admin_required
 
 main = Blueprint("main", __name__)
 
-
+@main.app_context_processor
+def inject_cart_total_items():
+    def get_cart_total_items():
+        cart = session.get('cart', {})
+        return sum(item['quantity'] for item in cart.values())
+    
+    return dict(cart_total_items=get_cart_total_items())
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -66,6 +72,7 @@ def index():
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
 
+
 @main.route('/item/<int:item_id>')
 def item_detail_page(item_id):
     item_data = get_item_by_id(item_id)
@@ -103,7 +110,7 @@ def cart():
 
 @main.route('/add_to_cart/<int:item_id>', methods=['POST'])
 def add_to_cart(item_id):
-    item=get_item_by_id(item_id)
+    item = get_item_by_id(item_id)
 
     if not item:
         flash("Invalid item.", "danger")
@@ -133,15 +140,13 @@ def add_to_cart(item_id):
             }
 
         session['cart'] = cart
+
         flash(f"Added {quantity} of {item['name']} to cart!")
     else:
-        flash("Item not found.", "error")
+        flash("Item not found.", "danger")
+    return redirect(url_for('main.index'))
 
-    next_url = request.referrer
-    if next_url:
-        return redirect(next_url)
-    else:
-        return redirect(url_for('main.index'))
+
    
 
 #This code allows the user to remove items
