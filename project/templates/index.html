@@ -39,6 +39,16 @@
 {% endblock %}
 {% block content %}
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mt-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 
 <div class="carousel-wrapper" style="width: 100vw; margin-left: calc(-50vw + 50%); overflow-x: hidden;">
@@ -79,14 +89,16 @@
             </div>
 
             <!-- Filter Dropdown -->
+        
             <div style="min-width: 200px;">
                 <select class="form-select h-100" name="category">
                     <option value="" {% if not category %}selected{% endif %}>All Categories</option>
-                    <option value="drinks" {% if category == 'drinks' %}selected{% endif %}>Drinks</option>
-                    <option value="breakfast" {% if category == 'breakfast' %}selected{% endif %}>Breakfast</option>
-                    <option value="main" {% if category == 'main' %}selected{% endif %}>Main Course</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat.capitalize() }}</option>
+                    {% endfor %}
                 </select>
             </div>
+            
         </div>
     </form>
 </div>
@@ -101,9 +113,12 @@
         <div class="card-body">
             <h5 class="card-title">{{ item['name'] }}</h5>
             <a href="{{ url_for('main.item_detail_page', item_id=item['itemID']) }}" class="custom-btn btn-success">View</a>
-            <form action="{{ url_for('main.add_to_cart', item_id=item['itemID']) }}" method="POST" style="display: inline;">
+           
+            <form action="{{ url_for('main.add_to_cart', item_id=item.itemID) }}" method="POST" style="display: inline">
+                <input type="hidden" name="next" value="{{ request.referrer }}">
                 <button type="submit" class="custom-btn btn-success">Add to Cart</button>
             </form>
+                
             
         </div>
     </div>

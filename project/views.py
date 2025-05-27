@@ -5,14 +5,20 @@ from .forms import LoginForm, RegisterForm
 from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry
 from .db import mysql
 from datetime import datetime
-
+import re
 import os
 from .decorators import admin_required
 
 
 main = Blueprint("main", __name__)
 
-
+@main.app_context_processor
+def inject_cart_total_items():
+    def get_cart_total_items():
+        cart = session.get('cart', {})
+        return sum(item['quantity'] for item in cart.values())
+    
+    return dict(cart_total_items=get_cart_total_items())
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -59,12 +65,14 @@ def index():
 
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '').strip()
-    
+    categories = get_category_enum_values()
+
     items = search_items(query, category)
 
     reviews = get_reviews()
     
-    return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
+    return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews, categories=categories)
+
 
 @main.route('/item/<int:item_id>')
 def item_detail_page(item_id):
@@ -78,6 +86,8 @@ def item_detail_page(item_id):
         return redirect(url_for('main.index'))
         
     return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
+
+
 
 
 
@@ -101,30 +111,43 @@ def cart():
 
 @main.route('/add_to_cart/<int:item_id>', methods=['POST'])
 def add_to_cart(item_id):
-    item=get_item_by_id(item_id)
+    item = get_item_by_id(item_id)
+
+    if not item:
+        flash("Invalid item.", "danger")
+        return redirect(request.referrer or url_for('main.index'))
+
+    try:
+        quantity_str = request.form.get('quantity', '1') 
+        quantity = int(quantity_str)
+    except ValueError:
+        flash("Invalid quantity. Please enter a number.", "danger")
+        return redirect(url_for('main.item_detail_page', item_id=item_id)) 
+
+    if quantity <= 0:
+        flash("Quantity must be at least 1.", "danger")
+        return redirect(url_for('main.item_detail_page', item_id=item_id))
 
     if item:
         cart = session.get('cart', {})
         if str(item_id) in cart:
-            cart[str(item_id)]['quantity'] += 1
+            cart[str(item_id)]['quantity'] += quantity
         else:
             cart[str(item_id)] = {
                 'itemID': item['itemID'],
                 'name': item['name'],
                 'price': float(item['price']),
-                'quantity': 1
+                'quantity': quantity
             }
 
         session['cart'] = cart
-        flash(f"Added {item['name']} to cart!")
-    else:
-        flash("Item not found.", "error")
 
-    next_url = request.referrer
-    if next_url:
-        return redirect(next_url)
+        flash(f"Added {quantity} of {item['name']} to cart!")
     else:
-        return redirect(url_for('main.index'))
+        flash("Item not found.", "danger")
+    return redirect(url_for('main.index'))
+
+
    
 
 #This code allows the user to remove items
@@ -144,7 +167,7 @@ def remove_from_cart(item_id):
     return redirect(url_for('main.cart'))
 
 
-#This code updates the quantity of items
+# updates the quantity of items
 @main.route('/update_quantity/<int:item_id>', methods = ['POST'])
 def update_quantity(item_id):
     cart = session.get('cart', {})
@@ -170,7 +193,7 @@ def update_quantity(item_id):
     session['cart'] = cart
     return redirect(url_for('main.cart'))
 
-#This code allows the user to empty the cart
+# allows the user to empty the cart
 @main.route('/clear_cart', methods = ['POST'])
 def clear_cart():
     session['cart'] = {}
@@ -181,9 +204,6 @@ def clear_cart():
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
-    if not cart:
-        flash("Your cart is empty. Please add items before proceeding to checkout.")
-        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
 
     delivery_option = session.get('delivery_option', 'standard-delivery')
@@ -215,6 +235,23 @@ def checkout():
         phone = request.form.get('phone')
         address_id = request.form.get('address')
         payment_method = request.form.get('payment-method')
+        errors = {}
+
+        if not name or not re.match(r'^[A-Za-z\s]+$', name):
+            errors['name'] = "Name must contain only letters and spaces."
+        if not email or not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            errors['email'] = "Invalid email address."
+        if not phone or not re.match(r'^0[0-9]{9}$', phone):
+            errors['phone'] = "Phone number must start with 0 and be 10 digits long."
+        if errors:
+            return render_template('checkout.html', errors=errors, cart=cart,
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total,
+                delivery_option=delivery_option,
+                payment_method=payment_method,
+                user_details=user_details,
+                addresses=addresses)
 
         if not all([name, email, phone, address_id, delivery_option, payment_method]):
             flash("All fields are required. Please complete the form.", "danger")
@@ -237,14 +274,9 @@ def checkout():
             'pending',
             total,
             payment_method,
-            delivery_option
-        )
+            delivery_option)
 
-        add_order_items(
-                order_id, list(cart.values())
-            )
-
-
+        
         add_order_items(order_id, list(cart.values()))
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
