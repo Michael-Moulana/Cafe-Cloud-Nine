@@ -5,7 +5,7 @@ from .forms import LoginForm, RegisterForm
 from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status, get_reviews, insert_inquiry
 from .db import mysql
 from datetime import datetime
-
+import re
 import os
 from .decorators import admin_required
 
@@ -212,6 +212,23 @@ def checkout():
         phone = request.form.get('phone')
         address_id = request.form.get('address')
         payment_method = request.form.get('payment-method')
+        errors = {}
+
+        if not name or not re.match(r'^[A-Za-z\s]+$', name):
+            errors['name'] = "Name must contain only letters and spaces."
+        if not email or not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            errors['email'] = "Invalid email address."
+        if not phone or not re.match(r'^0[0-9]{9}$', phone):
+            errors['phone'] = "Phone number must start with 0 and be 10 digits long."
+        if errors:
+            return render_template('checkout.html', errors=errors, cart=cart,
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total,
+                delivery_option=delivery_option,
+                payment_method=payment_method,
+                user_details=user_details,
+                addresses=addresses)
 
         if not all([name, email, phone, address_id, delivery_option, payment_method]):
             flash("All fields are required. Please complete the form.", "danger")
