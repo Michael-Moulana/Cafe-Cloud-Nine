@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry, insert_review
 from .db import mysql
 from datetime import datetime
 import re
@@ -364,6 +364,18 @@ def add_contact():
            return redirect(url_for('main.contact'))
         return render_template('contact.html')
 
+
+@main.route('/add_review', methods=['GET', 'POST'])
+def add_review():
+        user_id = session.get('user_id')
+        if request.method == 'POST':
+           review_text = request.form['review_text']
+
+           insert_review(user_id, review_text)
+
+           flash("Your review has been sent successfully!", "success")
+           return redirect(url_for('main.index'))
+        return render_template('index.html')
 
 # admin routes
 @main.route('/admin')

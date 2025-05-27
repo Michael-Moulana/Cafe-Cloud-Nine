@@ -231,6 +231,15 @@ def insert_inquiry(name, email, subject, message):
     mysql.connection.commit()
     cur.close()
 
+def insert_review(user_id, review_text):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO review (userID, review_text)
+        VALUES (%s, %s, %s)
+    """, (user_id, review_text))
+    mysql.connection.commit()
+    cur.close()
+
 # admin - orders
 def get_all_user_orders():
     query = """
