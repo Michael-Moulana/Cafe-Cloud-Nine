@@ -123,7 +123,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
@@ -211,6 +211,26 @@ def remove_item_from_db(item_id):
     mysql.connection.commit()
     cur.close()
 
+def get_reviews():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT r.review_text, u.name
+        FROM review r
+        LEFT JOIN user u ON r.userID = u.userID
+    """)
+    reviews = cur.fetchall()
+    cur.close()
+    return reviews
+
+def insert_inquiry(name, email, subject, message):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (name, email, subject, message, datetime.now(), 'pending'))
+    mysql.connection.commit()
+    cur.close()
+
 # admin - orders
 def get_all_user_orders():
     query = """
@@ -227,7 +247,7 @@ def get_all_user_orders():
             CONCAT_WS(', ', a.street_name, a.city, a.postcode, a.territory) AS delivery_address
         FROM user_order o
         JOIN user u ON o.userID = u.userID
-        LEFT JOIN address a ON o.delivery_addressID = a.addressID
+        LEFT JOIN address a ON o.delivery_address = a.addressID
         ORDER BY o.order_date DESC
     """
 
@@ -275,23 +295,36 @@ def update_order_status(order_id, new_status):
         raise
     finally:
         cur.close()
-def get_reviews():
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT r.review_text, u.name
-        FROM review r
-        LEFT JOIN user u ON r.userID = u.userID
-    """)
-    reviews = cur.fetchall()
-    cur.close()
-    return reviews
 
-def insert_inquiry(name, email, subject, message):
+        
+def get_category_enum_values():
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (name, email, subject, message, datetime.now(), 'pending'))
+        SELECT COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'item' AND COLUMN_NAME = 'category'
+    """)
+    row = cur.fetchone()
+    cur.close()
+
+    if row:
+        enum_str = row['COLUMN_TYPE']  # e.g., "enum('drinks','breakfast','main course')"
+        # Extract inside enum(...)
+        enum_values = enum_str[6:-1]  # remove "enum(" from start and ")" from end
+        # Split while preserving phrases with spaces
+        values = [v.strip("'") for v in enum_values.split(",")]
+        return values
+    return []
+
+def update_enum_categories(new_enum_list):
+    """
+    Updates the ENUM values of the 'category' column in 'item' table.
+    WARNING: this alters the table structure.
+    """
+    enum_str = ','.join([f"'{val}'" for val in new_enum_list])
+    cur = mysql.connection.cursor()
+    cur.execute(f"""
+        ALTER TABLE item MODIFY COLUMN category ENUM({enum_str}) NOT NULL
+    """)
     mysql.connection.commit()
     cur.close()
-

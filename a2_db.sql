@@ -23,6 +23,7 @@ CREATE TABLE user (
 );
 ALTER TABLE user ADD COLUMN password VARCHAR(255);
 
+select * from user;
 
 CREATE TABLE user_order (
     orderID INT AUTO_INCREMENT PRIMARY KEY,
@@ -184,5 +185,5 @@ INSERT INTO carousel (carouselImg_url) VALUES
 ('img/carousel-item3.jpg'),
 ('img/carousel-item4.jpg');
 
-INSERT INTO review(userID, review_text) VALUES (8, "Amazing service and the coffee is always hot. Highly recommend!"), (9, "Great food! The eco-delivery option is pretty cool") ;
+INSERT INTO review(userID, review_text) VALUES (1, "Amazing service and the coffee is always hot. Highly recommend!"), (2, "Great food! The eco-delivery option is pretty cool") ;
 
