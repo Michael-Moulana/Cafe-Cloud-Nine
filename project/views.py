@@ -12,7 +12,13 @@ from .decorators import admin_required
 
 main = Blueprint("main", __name__)
 
-
+@main.app_context_processor
+def inject_cart_total_items():
+    def get_cart_total_items():
+        cart = session.get('cart', {})
+        return sum(item['quantity'] for item in cart.values())
+    
+    return dict(cart_total_items=get_cart_total_items())
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
@@ -65,6 +71,7 @@ def index():
     reviews = get_reviews()
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
+
 
 @main.route('/item/<int:item_id>')
 def item_detail_page(item_id):
