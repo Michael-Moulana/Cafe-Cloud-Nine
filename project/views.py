@@ -181,9 +181,6 @@ def clear_cart():
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
-    if not cart:
-        flash("Your cart is empty. Please add items before proceeding to checkout.")
-        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
 
     delivery_option = session.get('delivery_option', 'standard-delivery')
@@ -215,6 +212,23 @@ def checkout():
         phone = request.form.get('phone')
         address_id = request.form.get('address')
         payment_method = request.form.get('payment-method')
+        errors = {}
+
+        if not name or not re.match(r'^[A-Za-z\s]+$', name):
+            errors['name'] = "Name must contain only letters and spaces."
+        if not email or not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            errors['email'] = "Invalid email address."
+        if not phone or not re.match(r'^0[0-9]{9}$', phone):
+            errors['phone'] = "Phone number must start with 0 and be 10 digits long."
+        if errors:
+            return render_template('checkout.html', errors=errors, cart=cart,
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total,
+                delivery_option=delivery_option,
+                payment_method=payment_method,
+                user_details=user_details,
+                addresses=addresses)
 
         if not all([name, email, phone, address_id, delivery_option, payment_method]):
             flash("All fields are required. Please complete the form.", "danger")
@@ -237,14 +251,9 @@ def checkout():
             'pending',
             total,
             payment_method,
-            delivery_option
-        )
+            delivery_option)
 
-        add_order_items(
-                order_id, list(cart.values())
-            )
-
-
+        
         add_order_items(order_id, list(cart.values()))
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
