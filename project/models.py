@@ -337,3 +337,11 @@ def update_enum_categories(new_enum_list):
     """)
     mysql.connection.commit()
     cur.close()
+
+
+# def get_all_inquiries():
+#     cur = mysql.connection.cursor()
+#     cur.execute("SELECT * FROM inquiry ORDER BY date_submitted DESC")
+#     inquiries = cur.fetchall()
+#     cur.close()
+#     return inquiries
