@@ -44,9 +44,9 @@
       <img src="{{ url_for('static', filename=item.image if item and item.image else 'img/item1.jpeg') }}" alt="{{ item.name|default('Avocado on Toast') }}" class="product-image">
     </div>
     <div class="col-md-6  ms-2 ">
-      <h1>{{ item.name|default('Avocdo') }}</h1>
+      <h1>{{ item.name|default('None') }}</h1>
       <p class="price">${{ "%.2f"|format(item.price|float) if item and item.price else '20.00' }}</p>
-      <p class="text-muted">{{ item.description|default('delightful combination...') }}</p>
+      <p class="text-muted">{{ item.description|default('no description found...') }}</p>
       
       {# --- FORM FOR ADD TO CART --- #}
       
@@ -82,20 +82,20 @@
                 {% for comment in comments %}
                 <li class="mb-3 p-3 border rounded">
                     <p class="mb-1"><strong>{{ comment.user_name }}</strong> <small class="text-muted">- {{ comment.created_at.strftime('%Y-%m-%d %H:%M') if comment.created_at else 'Some time ago' }}</small></p>
-                    <p class="mb-0">{{ comment.comment_text }}</p> {# |e for escape, |nl2br for newlines #}
+                    <p class="mb-0">{{ comment.comment_text }}</p> 
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Be the first to comment!</p>
+            <p>Be the first user to comment!</p>
         {% endif %}
 
-        {% if session.user_id %} {# Only show form if user is logged in #}
+        {% if session.user_id %} {# Only shows form if user is logged in #}
             <div class="add-comment-form mt-4">
                 <h4>Leave a Comment</h4>
                 <form method="POST" action="{{ url_for('main.add_comment_route', item_id=item.itemID) }}">
                     <div class="mb-3">
-                        <textarea class="form-control" name="comment_text" rows="3" placeholder="Write your comment here..." required></textarea>
+                        <textarea class="form-control" name="comment_text" rows="3" placeholder="Write comment here" required></textarea>
                     </div>
                     <button type="submit" class="custom-btn btn-success">Submit Comment</button>
                 </form>
