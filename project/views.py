@@ -372,7 +372,6 @@ def admin():
     items = get_all_items()
     orders = get_all_user_orders()
     categories = get_category_enum_values()
-    print(categories)
 
     # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
@@ -471,6 +470,7 @@ def delete_category(category):
 
     flash("Category deleted successfully.", "success")
     return redirect(url_for('main.admin'))
+
 
 
 # test error routes
