@@ -15,15 +15,13 @@ CREATE TABLE address (
 CREATE TABLE user (
     userID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    password VARCHAR(255),
     phone_number VARCHAR(20),
     email VARCHAR(100) UNIQUE NOT NULL,
     role ENUM('admin', 'customer') NOT NULL DEFAULT 'customer',
     addressID INT,
     FOREIGN KEY (addressID) REFERENCES address(addressID)
 );
-ALTER TABLE user ADD COLUMN password VARCHAR(255);
-
-select * from user;
 
 CREATE TABLE user_order (
     orderID INT AUTO_INCREMENT PRIMARY KEY,
@@ -44,10 +42,9 @@ CREATE TABLE item (
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     description TEXT,
-    image VARCHAR(255),  -- Store image path or URL
+    image VARCHAR(255),  
     category ENUM('drinks', 'breakfast', 'main course') NOT NULL
 ) ENGINE=InnoDB;
-
 
 CREATE TABLE order_items (
     order_itemID INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,7 +56,6 @@ CREATE TABLE order_items (
     FOREIGN KEY (orderID) REFERENCES user_order(orderID) ON DELETE CASCADE,
     FOREIGN KEY (itemID) REFERENCES item(itemID) ON DELETE CASCADE
 );
-
 
 CREATE TABLE inquiry (
     inquiryID INT AUTO_INCREMENT PRIMARY KEY,
@@ -79,13 +75,12 @@ CREATE TABLE review(
     FOREIGN KEY (userID) REFERENCES user(userID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-
 CREATE TABLE carousel (
     carouselImgID INT auto_increment primary key,
     carouselImg_url TEXT
 ) ENGINE=InnoDB;
 
--- Trigger for inserting a new order item
+-- Triggers 
 DELIMITER $$
 
 CREATE TRIGGER update_total_amount_after_insert
@@ -138,7 +133,6 @@ END $$
 DELIMITER ;
 
 
-
 INSERT INTO item (name, price, description, category, image) VALUES
 ('Avocado on Toast', 20, 'Fresh avocado served on crispy toast.','breakfast', 'img/item1.jpeg'),
 ('French Toast', 19, 'Classic French toast with syrup.', 'breakfast', 'img/item2.jpeg'),
@@ -147,40 +141,24 @@ INSERT INTO item (name, price, description, category, image) VALUES
 ('Pad Thai Noodles', 27, 'Spicy Pad Thai noodles with veggies.', 'main course', 'img/item5.jpeg'),
 ('Satay Chicken', 18, 'Grilled chicken skewers with satay sauce.', 'main course' , 'img/item6.jpeg');
 
-
-INSERT INTO address (street_name, city, postcode, territory) VALUES
-('123 George St', 'Brisbane', '4000', 'QLD'),
-('456 Queen St', 'Sydney', '2000', 'NSW'),
-('789 King St', 'Melbourne', '3000', 'VIC');
-
-INSERT INTO user (name, phone_number, email, role, addressID) VALUES
-('Alice Smith', '0412345678', 'alice@example.com', 'customer', 1),
-('Bob Johnson', '0498765432', 'bob@example.com', 'admin', 2),
-('Charlie Lee', '0422334455', 'charlie@example.com', 'customer', 3);
-
-INSERT INTO user_order (userID, order_date, delivery_address, delivery_mode, payment_method)
-SELECT 
-    u.userID,
-    NOW(),
-    a.addressID,
-    'eco-delivery',
-    'cash'
-FROM user u
-JOIN address a ON u.addressID = a.addressID
-WHERE u.userID = 1;
-
-INSERT INTO order_items (orderID, itemID, quantity, unit_price)
-SELECT 1, 1, 2, price FROM item WHERE itemID = 1
-UNION ALL
-SELECT 1, 2, 1, price FROM item WHERE itemID = 2
-UNION ALL
-SELECT 1, 3, 3, price FROM item WHERE itemID = 3;
-
 INSERT INTO carousel (carouselImg_url) VALUES
 ('img/carousel-item1.jpg'), 
 ('img/carousel-item2.jpg'),
 ('img/carousel-item3.jpg'),
 ('img/carousel-item4.jpg');
 
-INSERT INTO review(userID, review_text) VALUES (1, "Amazing service and the coffee is always hot. Highly recommend!"), (2, "Great food! The eco-delivery option is pretty cool") ;
+/*add users manually before review insertion->
+INSERT INTO user (name, phone_number, email, role, addressID) VALUES
+('Alice Smith', '0412345678', 'alice@example.com', 'customer', 1),
+('Charlie Lee', '0422334455', 'charlie@example.com', 'customer', 2);
+INSERT INTO address (street_name, city, postcode, territory) VALUES
+('123 George St', 'Brisbane', '4000', 'QLD'),
+('456 Queen St', 'Sydney', '2000', 'NSW'),
+
++ make admin user*/
+
+INSERT INTO review(userID, review_text) VALUES (1, "Amazing service and the coffee is always hot. Highly recommend!"), (2, "Great food! The eco-delivery option is pretty cool");
+
+
+
 
