@@ -113,22 +113,19 @@
        
     </div>
 </div>
-
 <div class = "d-flex justify-content-center">
-    
-    <div id="carousel_slide" class="carousel slide text-center" data-bs-ride="carousel" data-bs-interval="2000" style="border: none; box-shadow: none; background: transparent;">
-        <div class="carousel-inner">
-                  {% for review in reviews %}
 
-            <div class="carousel-item active">
+<div id="carousel_slide" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000" style="border: none; box-shadow: none; background: transparent;">
+    <div class="carousel-inner">
+    {% for review in reviews %}
+            <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
                 <blockquote class="blockquote">
-                                  <p class="mb-0 fst-italic">{{ review.review_text }}</p>
+                    <p class="mb-0 fst-italic">{{ review.review_text }}</p>
                 </blockquote>
-            <p class="blockquote-footer mt-2">{{ review.name }}</p>
+                <p class="blockquote-footer mt-2">{{ review.name }}</p>
             </div>
-                  {% endfor %}
-
-        </div>
+            {% endfor %}
+    </div>
 </div>
 {% endblock %}
 
