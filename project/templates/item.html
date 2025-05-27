@@ -28,29 +28,57 @@
     {% if messages %}
       <div class="alert alert-info">
         {% for message in messages %}
-          {{ message }}<br>
+          {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button> <br>
         {% endfor %}
       </div>
     {% endif %}
   {% endwith %}
-  <div class="row align-items-center">
-    <div class="col-md-6">
+  <div class="row ">
+    <div class="col-md-3">
       <img src="{{ url_for('static', filename=item.image if item and item.image else 'img/item1.jpeg') }}" alt="{{ item.name|default('Avocado on Toast') }}" class="product-image">
     </div>
-    <div class="col-md-6">
-      <h1>{{ item.name|default('Avocdo') }}</h1>
+    <div class="col-md-6  ms-2 ">
+      <h1>{{ item.name|default('None') }}</h1>
       <p class="price">${{ "%.2f"|format(item.price|float) if item and item.price else '20.00' }}</p>
-      <p class="text-muted">{{ item.description|default('delightful combination...') }}</p>
+      <p class="text-muted">{{ item.description|default('no description found...') }}</p>
       
       {# --- FORM FOR ADD TO CART --- #}
       
-      <form method="POST" action="{{ url_for('main.add_to_cart', item_id=item.itemID if item else 1) }}">
-        <button type="submit" class="custom-btn btn-success">Add to Cart</button>
+      <form  method="POST"  action="{{ url_for('main.add_to_cart', item_id=item.itemID if item else 1) }}">
+        <div class="mb-3 ">
+          <label for="quantity-{{ item.itemID }}" class="form-label">Quantity:</label>
+          <input 
+              type="number" 
+              class="form-control " 
+              style="width: 80px; display: inline-block;" 
+              id="quantity-{{ item.itemID }}" 
+              name="quantity" 
+              value="1"       
+              min="1"        
+              required        {# field mandatory must be filled #}
+          />
+          <button type="submit"class="ms-3 custom-btn btn-success">Add to Cart</button>
+        </div>
+
+        
+        
       </form>
+
+
     </div>
+    <hr class="my-4"> 
+
+    
+
   </div>
 </div>
-<button id="toggleDarkMode">Change theme</button>
+
 
   <!-- Bootstrap JS (no custom script) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
