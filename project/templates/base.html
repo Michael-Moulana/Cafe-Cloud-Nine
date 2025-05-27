@@ -39,13 +39,20 @@
                         CART (<span>{{ cart_total_items }}</span>)
                       </a>
                     </li>
-                                        {% if 'user_id' in session %}
+                    {% if 'user_id' in session %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">PROFILE</a></li>
                     <li class="nav-item"><a class="nav-link login-btn" href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-right me-1"></i> LOGOUT</a></li>
                     {% else %}
                       <li class="nav-item">
                         <a class="nav-link login-btn" href="{{ url_for('main.login') }}">
                           <i class="bi bi-person-circle me-1"></i> LOGIN
+                        </a>
+                      </li>
+                    {% endif %}
+                    {% if 'user_id' in session and session.get('role') == 'admin' %}
+                      <li class="nav-item">
+                        <a class="nav-link bordered-btn" href="{{ url_for('main.admin') }}">
+                          <i class="bi bi-shield-lock me-1"></i>ADMIN
                         </a>
                       </li>
                     {% endif %}

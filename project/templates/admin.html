@@ -34,7 +34,7 @@
 {% block content %}
 <div class="container mt-5">
   <h2 class="mb-4 text-center">Admin Panel</h2>
-  <h3>Manage Items</h3>
+  <h3 class="mb-3">Manage Items</h3>
   {% with messages = get_flashed_messages() %}
   {% if messages %}
     {% for msg in messages %}
@@ -85,9 +85,9 @@
             </td>
             <td>
               <select name="category" class="form-select form-select-sm" required>
-                <option value="drinks" {% if item.category == 'drinks' %}selected{% endif %}>Drinks</option>
-                <option value="breakfast" {% if item.category == 'breakfast' %}selected{% endif %}>Breakfast</option>
-                <option value="main course" {% if item.category == 'main course' %}selected{% endif %}>Main Course</option>
+                {% for cat in categories %}
+                  <option value="{{ cat }}" {% if item.category == cat %}selected{% endif %}>{{ cat.capitalize() }}</option>
+                {% endfor %}
               </select>
             </td>
             <td style="text-align: center;">
@@ -134,7 +134,7 @@
 </div>
 
 <hr class="my-5" />
-<h3>Manage Orders</h3>
+<h3 class="mb-3">Manage Orders</h3>
 <div class="table-responsive">
   <table class="table table-hover align-middle table-bordered">
     <thead class="table-dark">
@@ -186,7 +186,7 @@
 
 
 <hr class="my-5" />
-<h3>Manage Categories</h3>
+<h3 class="mb-3">Manage Categories</h3>
 <div class="table-responsive">
   <table class="table table-hover align-middle table-bordered">
     <thead class="table-dark">
