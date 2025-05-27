@@ -75,19 +75,7 @@
     
 </div>
 
-<!-- Recipient's Details Form -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="container2">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+  
 <!-- Delivery Options -->
 
     <div class="container2 delivery-options">
@@ -108,25 +96,36 @@
                        {% if delivery_option == 'eco-delivery' %}checked{% endif %}>
                 <label class="form-check-label" for="eco-delivery">Eco-Friendly Delivery - $3</label>
             </div>
-            <button type="submit" class="btn btn-outline-primary mt-3">Select</button
+            <button type="submit" class="btn btn-outline-primary mt-3">Select</button>
             
         </form>
     </div>
     <form id="recipient-form" method="POST" action="{{ url_for('main.checkout') }}">
+        <!-- Recipient's Details Form -->
+
         <div class="container2 form-section">
             <h3>Recipient Details</h3>
 
         <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>   
-            <input type="text" class="form-control" id="name" name="name" value="{{ user_details.name }}" pattern="^[A-Za-z\s]+$">
+            <input type="text" class="form-control" id="name" name="name" value="{{ user_details.name }}">
+            {% if errors and errors.name %}
+      <div class="text-danger">{{ errors.name }}</div>
+    {% endif %}
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ user_details.email }}">
+            <input type="email" class="form-control" id="email" name="email" value="{{ user_details.email }}" >
+            {% if errors and errors.email %}
+      <div class="text-danger">{{ errors.email }}</div>
+    {% endif %}
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user_details.phone_number }}" pattern="^0[0-9]{9}$" >
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user_details.phone_number }}" >
+            {% if errors and errors.phone %}
+      <div class="text-danger">{{ errors.phone }}</div>
+    {% endif %}
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Delivery Address</label>
@@ -163,7 +162,7 @@
         </div>
     </div>
 
-</form>
+
 </div>
 
     <div class="container2 form-section checkout-total" style="font-size: 16px">
@@ -171,10 +170,11 @@
         <p>Delivery Fee: $<span id="delivery-fee">{{ delivery_fee }}</span></p>
         <p><strong>Total: $<span id="total-price">{{ subtotal + delivery_fee }}</span></strong></p>
         <button class="custom-btn" style="margin-right: 20px; text-align: left;" onclick="window.location.href='cart.html'">Go Back to Cart</button>
-
+       
     <button type="submit" class="custom-btn" style="margin-top: 50px;">Place Order</button>
 
    </div>
+</form>
 
 </div>
 

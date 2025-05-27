@@ -2,13 +2,11 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, get_order_items, update_order_status, get_reviews, insert_inquiry
-
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry
 import re
-
 from .db import mysql
 from datetime import datetime
-
+import re
 import os
 from .decorators import admin_required
 
@@ -213,9 +211,6 @@ def clear_cart():
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
-    if not cart:
-        flash("Your cart is empty. Please add items before proceeding to checkout.")
-        return redirect(url_for('main.cart'))
     subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
 
     delivery_option = session.get('delivery_option', 'standard-delivery')
@@ -247,6 +242,23 @@ def checkout():
         phone = request.form.get('phone')
         address_id = request.form.get('address')
         payment_method = request.form.get('payment-method')
+        errors = {}
+
+        if not name or not re.match(r'^[A-Za-z\s]+$', name):
+            errors['name'] = "Name must contain only letters and spaces."
+        if not email or not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            errors['email'] = "Invalid email address."
+        if not phone or not re.match(r'^0[0-9]{9}$', phone):
+            errors['phone'] = "Phone number must start with 0 and be 10 digits long."
+        if errors:
+            return render_template('checkout.html', errors=errors, cart=cart,
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total,
+                delivery_option=delivery_option,
+                payment_method=payment_method,
+                user_details=user_details,
+                addresses=addresses)
 
         if not all([name, email, phone, address_id, delivery_option, payment_method]):
             flash("All fields are required. Please complete the form.", "danger")
@@ -269,14 +281,9 @@ def checkout():
             'pending',
             total,
             payment_method,
-            delivery_option
-        )
+            delivery_option)
 
-        add_order_items(
-                order_id, list(cart.values())
-            )
-
-
+        
         add_order_items(order_id, list(cart.values()))
         session['cart'] = {}
         flash("Your order has been placed successfully!", "success")
@@ -371,13 +378,14 @@ def add_contact():
 def admin():
     items = get_all_items()
     orders = get_all_user_orders()
-    print(orders)
+    categories = get_category_enum_values()
+    print(categories)
 
     # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
     image_list = os.listdir(image_dir) if os.path.exists(image_dir) else []
 
-    return render_template('admin.html', items=items, image_list=image_list, orders=orders)
+    return render_template('admin.html', items=items, image_list=image_list, orders=orders, categories=categories)
 
 @main.route("/admin/update/<int:item_id>", methods=["POST"])
 @admin_required
@@ -420,6 +428,57 @@ def update_order_status_route(order_id):
     update_order_status(order_id, new_status)
     flash(f"Order {order_id} status updated to '{new_status}'.")
     return redirect(url_for('main.admin'))
+
+
+@main.route('/admin/categories/add', methods=['POST'])
+@admin_required
+def add_category():
+    new_category = request.form.get('new_category').strip().lower()
+    categories = get_category_enum_values()
+
+    if new_category in categories:
+        flash("Category already exists.", "warning")
+        return redirect(url_for('main.admin'))
+
+    categories.append(new_category)
+    update_enum_categories(categories)
+    flash("Category added successfully.", "success")
+    return redirect(url_for('main.admin'))
+
+
+@main.route('/admin/categories/update/<category>', methods=['POST'])
+@admin_required
+def update_category(category):
+
+    flash("Category updated successfully.", "success")
+    return redirect(url_for('main.admin'))
+
+
+@main.route('/admin/categories/delete/<category>', methods=['GET', 'POST'])
+@admin_required
+def delete_category(category):
+    categories = get_category_enum_values()
+
+    if category not in categories:
+        flash("Category not found.", "danger")
+        return redirect(url_for('main.admin'))
+
+    # Prevent deletion if items still use it
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) as count FROM item WHERE category = %s", (category,))
+    count = cur.fetchone()['count']
+    cur.close()
+
+    if count > 0:
+        flash("Cannot delete category in use by items.", "danger")
+        return redirect(url_for('main.admin'))
+
+    updated_categories = [c for c in categories if c != category]
+    update_enum_categories(updated_categories)
+
+    flash("Category deleted successfully.", "success")
+    return redirect(url_for('main.admin'))
+
 
 # test error routes
 # @main.route('/error/400')

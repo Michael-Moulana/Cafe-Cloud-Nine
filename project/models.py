@@ -123,7 +123,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
@@ -211,26 +211,6 @@ def remove_item_from_db(item_id):
     mysql.connection.commit()
     cur.close()
 
-def get_reviews():
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT r.review_text, u.name
-        FROM review r
-        LEFT JOIN user u ON r.userID = u.userID
-    """)
-    reviews = cur.fetchall()
-    cur.close()
-    return reviews
-
-def insert_inquiry(name, email, subject, message):
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (name, email, subject, message, datetime.now(), 'pending'))
-    mysql.connection.commit()
-    cur.close()
-
 # admin - orders
 def get_all_user_orders():
     query = """
@@ -247,7 +227,7 @@ def get_all_user_orders():
             CONCAT_WS(', ', a.street_name, a.city, a.postcode, a.territory) AS delivery_address
         FROM user_order o
         JOIN user u ON o.userID = u.userID
-        LEFT JOIN address a ON o.delivery_address = a.addressID
+        LEFT JOIN address a ON o.delivery_addressID = a.addressID
         ORDER BY o.order_date DESC
     """
 
@@ -295,3 +275,23 @@ def update_order_status(order_id, new_status):
         raise
     finally:
         cur.close()
+def get_reviews():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT r.review_text, u.name
+        FROM review r
+        LEFT JOIN user u ON r.userID = u.userID
+    """)
+    reviews = cur.fetchall()
+    cur.close()
+    return reviews
+
+def insert_inquiry(name, email, subject, message):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (name, email, subject, message, datetime.now(), 'pending'))
+    mysql.connection.commit()
+    cur.close()
+
