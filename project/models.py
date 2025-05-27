@@ -235,7 +235,7 @@ def insert_review(user_id, review_text):
     cur = mysql.connection.cursor()
     cur.execute("""
         INSERT INTO review (userID, review_text)
-        VALUES (%s, %s, %s)
+        VALUES (%s, %s)
     """, (user_id, review_text))
     mysql.connection.commit()
     cur.close()
