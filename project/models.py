@@ -211,28 +211,6 @@ def remove_item_from_db(item_id):
     mysql.connection.commit()
     cur.close()
 
-def get_reviews():
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT r.review_text, u.name
-        FROM review r
-        LEFT JOIN user u ON r.userID = u.userID
-    """)
-    reviews = cur.fetchall()
-    cur.close()
-    return reviews
-
-def insert_inquiry(name, email, subject, message):
-    cur = mysql.connection.cursor()
-    cur.execute("""
-        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (name, email, subject, message, datetime.now(), 'pending'))
-    mysql.connection.commit()
-    cur.close()
-
-
-
 # admin - orders
 def get_all_user_orders():
     query = """
@@ -297,3 +275,23 @@ def update_order_status(order_id, new_status):
         raise
     finally:
         cur.close()
+def get_reviews():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT r.review_text, u.name
+        FROM review r
+        LEFT JOIN user u ON r.userID = u.userID
+    """)
+    reviews = cur.fetchall()
+    cur.close()
+    return reviews
+
+def insert_inquiry(name, email, subject, message):
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO inquiry (name, email, subject, message, date_submitted, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (name, email, subject, message, datetime.now(), 'pending'))
+    mysql.connection.commit()
+    cur.close()
+
