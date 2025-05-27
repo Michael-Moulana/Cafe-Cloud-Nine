@@ -157,6 +157,11 @@ body {
   color: white;
 }
 
+.navbar .bordered-btn {
+  border: 1px solid #62b6f0;
+  border-radius: 10px;
+}
+
 #carousel_slide {
   margin-bottom: 20px;
 }
