@@ -65,12 +65,13 @@ def index():
 
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '').strip()
-    
+    categories = get_category_enum_values()
+
     items = search_items(query, category)
 
     reviews = get_reviews()
     
-    return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews)
+    return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews, categories=categories)
 
 
 @main.route('/item/<int:item_id>')
@@ -117,11 +118,11 @@ def add_to_cart(item_id):
         return redirect(request.referrer or url_for('main.index'))
 
     try:
-        quantity_str = request.form.get('quantity', '1') # getting quantity from form, default 1
+        quantity_str = request.form.get('quantity', '1') 
         quantity = int(quantity_str)
     except ValueError:
         flash("Invalid quantity. Please enter a number.", "danger")
-        return redirect(url_for('main.item_detail_page', item_id=item_id)) # Redirect back to item page
+        return redirect(url_for('main.item_detail_page', item_id=item_id)) 
 
     if quantity <= 0:
         flash("Quantity must be at least 1.", "danger")

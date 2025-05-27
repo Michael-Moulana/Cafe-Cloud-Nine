@@ -123,7 +123,7 @@ def get_user_addresses(user_id):
 def create_order(user_id, order_date, address_id, status, total, payment_method, delivery_option):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO user_order (userID, order_date, delivery_address, status, total_amount, 
+        INSERT INTO user_order (userID, order_date, delivery_addressID, status, total_amount, 
                                 payment_method, delivery_mode)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
@@ -247,7 +247,7 @@ def get_all_user_orders():
             CONCAT_WS(', ', a.street_name, a.city, a.postcode, a.territory) AS delivery_address
         FROM user_order o
         JOIN user u ON o.userID = u.userID
-        LEFT JOIN address a ON o.delivery_address = a.addressID
+        LEFT JOIN address a ON o.delivery_addressID = a.addressID
         ORDER BY o.order_date DESC
     """
 
