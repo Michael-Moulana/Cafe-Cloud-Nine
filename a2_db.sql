@@ -29,7 +29,7 @@ CREATE TABLE user_order (
     orderID INT AUTO_INCREMENT PRIMARY KEY,
     userID INT NOT NULL,
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    delivery_address INT,
+    delivery_addressID INT,
     status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
     total_amount DECIMAL(10, 2),
     payment_method ENUM('cash', 'card', 'apple_pay') NOT NULL,
@@ -38,8 +38,6 @@ CREATE TABLE user_order (
     FOREIGN KEY (userID) REFERENCES user(userID) ON DELETE CASCADE,
 	FOREIGN KEY (delivery_address) REFERENCES address(addressID) ON DELETE SET NULL
 );
-
-select * from user_order;
 
 CREATE TABLE item (
     itemID INT AUTO_INCREMENT PRIMARY KEY,
@@ -50,7 +48,6 @@ CREATE TABLE item (
     category ENUM('drinks', 'breakfast', 'main course') NOT NULL
 ) ENGINE=InnoDB;
 
-select * from item;
 
 CREATE TABLE order_items (
     order_itemID INT AUTO_INCREMENT PRIMARY KEY,
