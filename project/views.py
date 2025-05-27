@@ -350,7 +350,7 @@ def profile():
     return render_template("profile.html", user=user, orders=orders)
 
 
-@main.route('/contact', methods=['GET', 'POST'])
+@main.route('/contact', methods=['POST'])
 def add_contact():
         if request.method == 'POST':
            name = request.form['name']
@@ -365,7 +365,7 @@ def add_contact():
         return render_template('contact.html')
 
 
-@main.route('/add_review', methods=['GET', 'POST'])
+@main.route('/add_review', methods=['POST'])
 def add_review():
         user_id = session.get('user_id')
         if request.method == 'POST':
