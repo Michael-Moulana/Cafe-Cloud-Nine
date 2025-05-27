@@ -36,7 +36,7 @@ CREATE TABLE user_order (
     card_number VARCHAR(255),
     delivery_mode ENUM('eco-delivery', 'express-delivery', 'standard-delivery') NOT NULL,
     FOREIGN KEY (userID) REFERENCES user(userID) ON DELETE CASCADE,
-	FOREIGN KEY (delivery_address) REFERENCES address(addressID) ON DELETE SET NULL
+	FOREIGN KEY (delivery_addressID) REFERENCES address(addressID) ON DELETE SET NULL
 );
 
 CREATE TABLE item (
