@@ -74,36 +74,7 @@
     </div>
     <hr class="my-4"> 
 
-    <div class="comments-section mt-4">
-        <h3>Comments ({{ comments|length }})</h3> {# shows commnt count #}
-
-        {% if comments %}
-            <ul class="list-unstyled">
-                {% for comment in comments %}
-                <li class="mb-3 p-3 border rounded">
-                    <p class="mb-1"><strong>{{ comment.user_name }}</strong> <small class="text-muted">- {{ comment.created_at.strftime('%Y-%m-%d %H:%M') if comment.created_at else 'Some time ago' }}</small></p>
-                    <p class="mb-0">{{ comment.comment_text }}</p> 
-                </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Be the first user to comment!</p>
-        {% endif %}
-
-        {% if session.user_id %} {# Only shows form if user is logged in #}
-            <div class="add-comment-form mt-4">
-                <h4>Leave a Comment</h4>
-                <form method="POST" action="{{ url_for('main.add_comment_route', item_id=item.itemID) }}">
-                    <div class="mb-3">
-                        <textarea class="form-control" name="comment_text" rows="3" placeholder="Write comment here" required></textarea>
-                    </div>
-                    <button type="submit" class="custom-btn btn-success">Submit Comment</button>
-                </form>
-            </div>
-        {% else %}
-            <p class="mt-4"><a href="{{ url_for('main.login', next=url_for('main.item_detail_page', item_id=item.itemID)) }}">Log in</a> to leave a comment.</p>
-        {% endif %}
-    </div>
+    
 
   </div>
 </div>
