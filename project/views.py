@@ -108,7 +108,7 @@ def cart():
 
 @main.route('/add_to_cart/<int:item_id>', methods=['POST'])
 def add_to_cart(item_id):
-    item=get_item_by_id(item_id)
+    item = get_item_by_id(item_id)
 
     if item:
         cart = session.get('cart', {})
@@ -123,15 +123,12 @@ def add_to_cart(item_id):
             }
 
         session['cart'] = cart
-        flash(f"Added {item['name']} to cart!")
+        flash(f"Added {item['name']} to cart!", "success")
     else:
-        flash("Item not found.", "error")
+        flash("Item not found.", "danger")
+    return redirect(url_for('main.index'))
 
-    next_url = request.referrer
-    if next_url:
-        return redirect(next_url)
-    else:
-        return redirect(url_for('main.index'))
+
    
 
 #This code allows the user to remove items
