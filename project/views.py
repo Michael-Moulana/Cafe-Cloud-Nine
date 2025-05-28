@@ -145,8 +145,11 @@ def add_to_cart(item_id):
         flash(f"Added {quantity} of {item['name']} to cart!")
     else:
         flash("Item not found.", "danger")
-    return redirect(url_for('main.index'))
-
+    next_url = request.referrer
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(url_for('main.index'))
 
    
 
