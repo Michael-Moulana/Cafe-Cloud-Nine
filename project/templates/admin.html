@@ -84,12 +84,15 @@
               <input type="text" name="description" value="{{ item['description'] }}" required class="form-control form-control-sm" />
             </td>
             <td>
-              <select name="category" class="form-select form-select-sm" required>
+              <select name="categoryID" class="form-select form-select-sm" required>
                 {% for cat in categories %}
-                  <option value="{{ cat }}" {% if item.category == cat %}selected{% endif %}>{{ cat.capitalize() }}</option>
+                  <option value="{{ cat['categoryID'] }}" {% if item['categoryID'] == cat['categoryID'] %}selected{% endif %}>
+                    {{ cat['category_name'].capitalize() }}
+                  </option>
                 {% endfor %}
               </select>
             </td>
+            
             <td style="text-align: center;">
               <button type="submit" class="btn-sm custom-btn-update">Update</button>
             </td>
@@ -199,14 +202,14 @@
     <tbody>
       {% for category in categories %}
       <tr>
-        <form method="POST" action="{{ url_for('main.update_category', category=category) }}">
+        <form method="POST" action="{{ url_for('main.update_category', category_id=category['categoryID']) }}">
           <td>{{ loop.index }}</td>
           <td>
-            <input type="text" name="new_category" value="{{ category }}" class="form-control form-control-sm" required />
+            <input type="text" name="new_category" value="{{ category['category_name'] }}" class="form-control form-control-sm" required />
           </td>
           <td>
             <button type="submit" class="btn-sm custom-btn-update">Rename</button>
-            <a href="{{ url_for('main.delete_category', category=category) }}" class="btn-sm custom-btn-delete">Delete</a>
+            <a href="{{ url_for('main.delete_category', category_id=category['categoryID']) }}" class="btn-sm custom-btn-delete">Delete</a>
           </td>
         </form>
       </tr>
@@ -227,4 +230,5 @@
     </tbody>
   </table>
 </div>
+
 {% endblock %}

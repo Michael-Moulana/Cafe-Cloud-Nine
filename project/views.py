@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, session, request, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegisterForm
-from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_category_enum_values, update_enum_categories, get_reviews, insert_inquiry, insert_review
+from .models import get_user_by_email, create_user, update_user_details, get_all_items, get_carousels, search_items, get_item_by_id, get_user_details_by_id, get_user_addresses, create_order, add_order_items, get_user_orders, get_user_profile, update_item_in_db, add_item_to_db, remove_item_from_db, get_all_user_orders, update_order_status, get_categories, add_category_db, update_category_db, delete_category_db, get_reviews, insert_inquiry, insert_review
 from .db import mysql
 from datetime import datetime
 import re
@@ -65,7 +65,7 @@ def index():
 
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '').strip()
-    categories = get_category_enum_values()
+    categories = get_categories()
 
     items = search_items(query, category)
 
@@ -86,10 +86,6 @@ def item_detail_page(item_id):
         return redirect(url_for('main.index'))
         
     return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
-
-
-
-
 
 @main.route('/about')
 def about():
@@ -247,6 +243,7 @@ def checkout():
         if not phone or not re.match(r'^0[0-9]{9}$', phone):
             errors['phone'] = "Phone number must start with 0 and be 10 digits long."
         if errors:
+            print("Errors found:", errors)
             return render_template('checkout.html', errors=errors, cart=cart,
                 subtotal=subtotal,
                 delivery_fee=delivery_fee,
@@ -386,7 +383,7 @@ def add_review():
 def admin():
     items = get_all_items()
     orders = get_all_user_orders()
-    categories = get_category_enum_values()
+    categories = get_categories()
 
     # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
@@ -400,10 +397,10 @@ def update_item(item_id):
     name = request.form["name"]
     price = request.form["price"]
     description = request.form["description"]
-    category = request.form["category"]
+    categoryID = request.form["categoryID"]
     image = request.form["image"]
 
-    update_item_in_db(item_id, name, price, description, category, image) 
+    update_item_in_db(item_id, name, price, description, categoryID, image) 
     flash("Item updated successfully.")
     return redirect(url_for("main.admin"))
 
@@ -413,10 +410,10 @@ def add_item():
     name = request.form['name']
     price = request.form['price']
     description = request.form['description']
-    category = request.form['category']
+    categoryID = request.form['categoryID']
     image = 'img/' + request.form['image']
 
-    add_item_to_db(name, price, description, category, image) 
+    add_item_to_db(name, price, description, categoryID, image) 
     flash("New item added successfully.")
     return redirect(url_for('main.admin'))
 
@@ -441,47 +438,41 @@ def update_order_status_route(order_id):
 @admin_required
 def add_category():
     new_category = request.form.get('new_category').strip().lower()
-    categories = get_category_enum_values()
+    categories = get_categories()
 
-    if new_category in categories:
+    if any(new_category==category['category_name'] for category in categories):
         flash("Category already exists.", "warning")
         return redirect(url_for('main.admin'))
 
-    categories.append(new_category)
-    update_enum_categories(categories)
+    add_category_db(new_category)
     flash("Category added successfully.", "success")
     return redirect(url_for('main.admin'))
 
 
-@main.route('/admin/categories/update/<category>', methods=['POST'])
+@main.route('/admin/categories/update/<int:category_id>', methods=['POST'])
 @admin_required
-def update_category(category):
+def update_category(category_id):
+    new_name = request.form.get('new_category').strip().lower()
+
+    if not new_name:
+        flash("Invalid category name", "warning")
+        return redirect(url_for('main.admin'))
+    
+    update_category_db(category_id, new_name)
 
     flash("Category updated successfully.", "success")
     return redirect(url_for('main.admin'))
 
 
-@main.route('/admin/categories/delete/<category>', methods=['GET', 'POST'])
+@main.route('/admin/categories/delete/<int:category_id>', methods=['GET', 'POST'])
 @admin_required
-def delete_category(category):
-    categories = get_category_enum_values()
+def delete_category(category_id):
 
-    if category not in categories:
-        flash("Category not found.", "danger")
-        return redirect(url_for('main.admin'))
-
-    # Prevent deletion if items still use it
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT COUNT(*) as count FROM item WHERE category = %s", (category,))
-    count = cur.fetchone()['count']
-    cur.close()
+    count = delete_category_db(category_id)
 
     if count > 0:
         flash("Cannot delete category in use by items.", "danger")
         return redirect(url_for('main.admin'))
-
-    updated_categories = [c for c in categories if c != category]
-    update_enum_categories(updated_categories)
 
     flash("Category deleted successfully.", "success")
     return redirect(url_for('main.admin'))
