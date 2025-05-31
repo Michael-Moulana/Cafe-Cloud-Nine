@@ -13,3 +13,21 @@ based on your system (like root name and password)
 
 - Running:
 python run.py
+
+- Login Info
+1. (admin)
+username: admin@example.com
+password: password4
+
+2. 
+username: alice@example.com
+password: password1
+
+3. 
+username: charlie@example.com
+password: password2
+
+4.
+username: john@example.com
+password: password3
+

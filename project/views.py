@@ -12,6 +12,7 @@ from .decorators import admin_required
 
 main = Blueprint("main", __name__)
 
+# Cart total in navbar
 @main.app_context_processor
 def inject_cart_total_items():
     def get_cart_total_items():
@@ -20,6 +21,7 @@ def inject_cart_total_items():
     
     return dict(cart_total_items=get_cart_total_items())
 
+# register users
 @main.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -35,6 +37,7 @@ def register():
         return redirect(url_for("main.login"))
     return render_template("register.html", form=form)
 
+# login users
 @main.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -53,11 +56,13 @@ def login():
             flash("Invalid credentials.", "danger")
     return render_template("login.html", form=form)
 
+# logout users
 @main.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("main.index"))
 
+# index search and filter
 @main.route('/')
 def index():
     items = get_all_items()
@@ -73,7 +78,7 @@ def index():
     
     return render_template("index.html", items=items, carousels=carousels, query=query, category=category, reviews=reviews, categories=categories)
 
-
+# item details
 @main.route('/item/<int:item_id>')
 def item_detail_page(item_id):
     item_data = get_item_by_id(item_id)
@@ -87,24 +92,29 @@ def item_detail_page(item_id):
         
     return render_template('item.html', item=item_data, cart_item_count=cart_item_count)
 
+# about page
 @main.route('/about')
 def about():
     return render_template('about.html')
 
+# menu page
 @main.route('/menu')
 def menu():
     return render_template('menu.html')
 
+# contact page
 @main.route('/contact')
 def contact():
     return render_template('contact.html')
 
+# cart management
 @main.route('/cart')
 def cart():
     cart = session.get('cart', {})
     total = sum(item['price'] * item['quantity'] for item in cart.values())
     return render_template('cart.html', cart=cart, total=total)
 
+# allows the user to add items in cart
 @main.route('/add_to_cart/<int:item_id>', methods=['POST'])
 def add_to_cart(item_id):
     item = get_item_by_id(item_id)
@@ -147,9 +157,7 @@ def add_to_cart(item_id):
     else:
         return redirect(url_for('main.index'))
 
-   
-
-#This code allows the user to remove items
+# Allows the user to remove items
 @main.route('/remove_from_cart/<int:item_id>', methods = ['POST'])
 def remove_from_cart(item_id):
     cart = session.get('cart', {})
@@ -199,7 +207,7 @@ def clear_cart():
     flash("The cart is now empty")
     return redirect(url_for('main.cart'))
 
-
+# checkout page
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', {})
@@ -294,7 +302,7 @@ def checkout():
         addresses=addresses
     )
 
-
+# update delivery method
 @main.route('/select_delivery_option', methods=['POST'])
 def select_delivery_option():
     delivery_option = request.form.get('deliveryOption')
@@ -303,13 +311,12 @@ def select_delivery_option():
     flash("Delivery option updated.", "info")
     return redirect(url_for('main.checkout'))
 
-
-
+# order success page
 @main.route('/order-success')
 def order_success():
     return render_template('order_success.html')
 
-
+# user profile page
 @main.route('/profile', methods=['GET', 'POST'])
 def profile():
     user_id = session['user_id']
@@ -349,7 +356,7 @@ def profile():
 
     return render_template("profile.html", user=user, orders=orders)
 
-
+# add inquiry from contact page
 @main.route('/contact', methods=['POST'])
 def add_contact():
         if request.method == 'POST':
@@ -364,7 +371,7 @@ def add_contact():
            return redirect(url_for('main.contact'))
         return render_template('contact.html')
 
-
+# add revie from index page
 @main.route('/add_review', methods=['POST'])
 def add_review():
         user_id = session.get('user_id')
@@ -385,12 +392,12 @@ def admin():
     orders = get_all_user_orders()
     categories = get_categories()
 
-    # List image files from static/img
     image_dir = os.path.join(os.path.dirname(__file__), 'static', 'img')
     image_list = os.listdir(image_dir) if os.path.exists(image_dir) else []
 
     return render_template('admin.html', items=items, image_list=image_list, orders=orders, categories=categories)
 
+# update item details
 @main.route("/admin/update/<int:item_id>", methods=["POST"])
 @admin_required
 def update_item(item_id):
@@ -404,6 +411,7 @@ def update_item(item_id):
     flash("Item updated successfully.")
     return redirect(url_for("main.admin"))
 
+# add new items
 @main.route('/admin/add_item', methods=['POST'])
 @admin_required
 def add_item():
@@ -417,6 +425,7 @@ def add_item():
     flash("New item added successfully.")
     return redirect(url_for('main.admin'))
 
+# delete items 
 @main.route('/admin/delete_item/<int:item_id>', methods=['POST'])
 @admin_required
 def delete_item(item_id):
@@ -424,7 +433,7 @@ def delete_item(item_id):
     flash("Item deleted successfully.")
     return redirect(url_for('main.admin'))
 
-
+# update order status
 @main.route('/admin/order/<int:order_id>', methods=['POST'])
 @admin_required
 def update_order_status_route(order_id):
@@ -433,7 +442,7 @@ def update_order_status_route(order_id):
     flash(f"Order {order_id} status updated to '{new_status}'.")
     return redirect(url_for('main.admin'))
 
-
+# add new category
 @main.route('/admin/categories/add', methods=['POST'])
 @admin_required
 def add_category():
@@ -448,7 +457,7 @@ def add_category():
     flash("Category added successfully.", "success")
     return redirect(url_for('main.admin'))
 
-
+# update category name
 @main.route('/admin/categories/update/<int:category_id>', methods=['POST'])
 @admin_required
 def update_category(category_id):
@@ -463,7 +472,7 @@ def update_category(category_id):
     flash("Category updated successfully.", "success")
     return redirect(url_for('main.admin'))
 
-
+# delete category
 @main.route('/admin/categories/delete/<int:category_id>', methods=['GET', 'POST'])
 @admin_required
 def delete_category(category_id):
@@ -476,8 +485,6 @@ def delete_category(category_id):
 
     flash("Category deleted successfully.", "success")
     return redirect(url_for('main.admin'))
-
-
 
 # test error routes
 # @main.route('/error/400')
