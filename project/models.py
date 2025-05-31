@@ -265,10 +265,8 @@ def get_all_user_orders():
     rows = cur.fetchall()
     cur.close()
 
-    # Format each row
     orders = []
     for row in rows:
-        # Format datetime and decimal
         row['order_date'] = row['order_date'].strftime("%d %b %Y, %H:%M") if row['order_date'] else 'N/A'
         row['total_amount'] = f"${float(row['total_amount']):.2f}" if row['total_amount'] is not None else "$0.00"
         orders.append(row)
@@ -336,10 +334,3 @@ def delete_category_db(category_id):
     cur.close()
     return count
 
-
-# def get_all_inquiries():
-#     cur = mysql.connection.cursor()
-#     cur.execute("SELECT * FROM inquiry ORDER BY date_submitted DESC")
-#     inquiries = cur.fetchall()
-#     cur.close()
-#     return inquiries
