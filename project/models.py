@@ -56,7 +56,7 @@ def update_user_details(user_id, name, email, phone, street_name, city, postcode
 
 def get_all_items():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM item")
+    cur.execute( "SELECT i.itemID, i.name, i.description, i.image, i.price, i.categoryID, c.categoryID, c.category_name FROM item i JOIN category c ON i.categoryID = c.categoryID")
     items = cur.fetchall()
     cur.close()
     return items
@@ -68,18 +68,18 @@ def get_carousels():
     cur.close()
     return carousels
 
-def search_items(query='', category=''):
+def search_items(query='', categoryID=''):
     cur = mysql.connection.cursor()
-    sql = "SELECT * FROM item"
+    sql = """SELECT * FROM item LEFT JOIN category on item.categoryID = category.categoryID"""
     filters = []
     params = []
 
     if query:
-        filters.append("name LIKE %s")
+        filters.append("item.name LIKE %s")
         params.append(f"%{query}%")
-    if category:
-        filters.append("category = %s")
-        params.append(category)
+    if categoryID:
+        filters.append("category.categoryID = %s")
+        params.append(categoryID)
     if filters:
         sql += " WHERE " + " AND ".join(filters)
 
@@ -91,7 +91,7 @@ def search_items(query='', category=''):
 
 def get_item_by_id(item_id):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT itemID, name, price, description, category, image FROM item WHERE itemID = %s", (item_id,))
+    cur.execute("SELECT i.itemID, i.name, i.price, i.description, i.categoryID, i.image, c.category_name FROM item i JOIN category c ON c.categoryID=i.categoryID WHERE i.itemID = %s", (item_id,))
     item = cur.fetchone()
     cur.close()
     return item
@@ -186,22 +186,22 @@ def get_user_profile(user_id):
     return user
 
 # for admin page 
-def update_item_in_db(item_id, name, price, description, category, image):
+def update_item_in_db(item_id, name, price, description, categoryID, image):
     cur = mysql.connection.cursor()
     cur.execute("""
         UPDATE item
-        SET name = %s, price = %s, description = %s, category = %s, image = %s
+        SET name = %s, price = %s, description = %s, categoryID = %s, image = %s
         WHERE itemID = %s
-    """, (name, price, description, category, image, item_id))
+    """, (name, price, description, categoryID, image, item_id))
     mysql.connection.commit()
     cur.close()
 
-def add_item_to_db(name, price, description, category, image):
+def add_item_to_db(name, price, description, categoryID, image):
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO item (name, price, description, category, image)
+        INSERT INTO item (name, price, description, categoryID, image)
         VALUES (%s, %s, %s, %s, %s)
-    """, (name, price, description, category, image))
+    """, (name, price, description, categoryID, image))
     mysql.connection.commit()
     cur.close()
 
@@ -306,37 +306,35 @@ def update_order_status(order_id, new_status):
         cur.close()
 
         
-def get_category_enum_values():
+def get_categories():
     cur = mysql.connection.cursor()
-    cur.execute("""
-        SELECT COLUMN_TYPE
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'item' AND COLUMN_NAME = 'category'
-    """)
-    row = cur.fetchone()
+    cur.execute("SELECT * FROM category")
+    categories = cur.fetchall()
     cur.close()
+    return categories
 
-    if row:
-        enum_str = row['COLUMN_TYPE']  # e.g., "enum('drinks','breakfast','main course')"
-        # Extract inside enum(...)
-        enum_values = enum_str[6:-1]  # remove "enum(" from start and ")" from end
-        # Split while preserving phrases with spaces
-        values = [v.strip("'") for v in enum_values.split(",")]
-        return values
-    return []
-
-def update_enum_categories(new_enum_list):
-    """
-    Updates the ENUM values of the 'category' column in 'item' table.
-    WARNING: this alters the table structure.
-    """
-    enum_str = ','.join([f"'{val}'" for val in new_enum_list])
+def add_category_db(category_name):
     cur = mysql.connection.cursor()
     cur.execute(f"""
-        ALTER TABLE item MODIFY COLUMN category ENUM({enum_str}) NOT NULL
-    """)
+        INSERT INTO category (category_name) VALUES (%s)
+    """, (category_name,))
     mysql.connection.commit()
     cur.close()
+
+def update_category_db(category_id, new_name):
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE category SET category_name = %s WHERE categoryID = %s", (new_name, category_id))
+    mysql.connection.commit()
+    cur.close()
+
+def delete_category_db(category_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) as count FROM item WHERE categoryID = %s", (category_id,))
+    count = cur.fetchone()['count']
+    cur.execute("DELETE FROM category WHERE categoryID = %s", (category_id,))
+    mysql.connection.commit()
+    cur.close()
+    return count
 
 
 # def get_all_inquiries():
