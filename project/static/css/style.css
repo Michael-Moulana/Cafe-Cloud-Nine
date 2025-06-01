@@ -14,6 +14,18 @@ body {
   color: #61baf1;
 }
 
+
+@media (max-width: 768px) {
+  .admin-link {
+    max-width: 100px; /* Limit the width */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow */
+  }
+}
+
+
+
 .navbar {
   background-color: white !important;
   backdrop-filter: blur(10px);
@@ -21,6 +33,7 @@ body {
 
 .navbar-nav .nav-item {
   margin: 0 10px;
+  padding-top: 15px;
 }
 
 .navbar .navbar-brand {
