@@ -151,7 +151,14 @@ INSERT INTO item (name, price, description, categoryID, image) VALUES
 ('Satay Chicken', 18, 'Grilled chicken skewers with satay sauce.', 2 , 'img/item6.jpeg'),
 ('Chicken Burger', 24, 'Grilled chicken patty with lettuce, tomato, and mayo in a toasted bun.', 2, 'img/item7.jpeg'),
 ('Chocolate Brownie', 10, 'Rich and fudgy chocolate brownie.', 4, 'img/item8.jpeg'), 
-('Matcha Cheesecake', 13, 'Creamy cheesecake with a matcha twist.', 4, 'img/item9.jpeg');
+('Matcha Cheesecake', 13, 'Creamy cheesecake with a matcha twist.', 4, 'img/item9.jpeg'),
+('Beef Lasagna', 21.50, 'Layers of pasta, beef, and cheese baked to perfection.', 2, 'img/item10.jpeg'),
+('Vegetable Stir Fry', 17.50, 'Fresh vegetables sautéed with soy and sesame.', 2, 'img/item11.jpg'),
+('Breakfast Burrito', 11.50, 'Eggs, cheese, and salsa in a toasted tortilla.', 1, 'img/item12.jpeg'),
+('Tiramisu', 12.50, 'Classic Italian dessert with coffee and mascarpone.', 4, 'img/item13.jpeg'),
+('Berry Smoothie', 9.20, 'Mixed berry smoothie with yogurt.', 3, 'img/item14.jpeg'),
+('Granola Bowl', 12.80, 'Granola with fresh fruit and yogurt.', 1, 'img/item15.jpeg');
+
 
 INSERT INTO carousel (carouselImg_url) VALUES
 ('img/carousel-item1.jpg'), 
@@ -162,13 +169,17 @@ INSERT INTO carousel (carouselImg_url) VALUES
 INSERT into address(street_name, city, postcode, territory) VALUES 
 ('123 Queen St', 'Brisbane', '1234', 'QLD'),
 ('123 George St', 'Brisbane', '5678', 'QLD'),
-('123 Queen St', 'Sydney', '9876', 'NSW'); 
+('123 Queen St', 'Sydney', '9876', 'NSW'),
+('321 Adelaide St', 'Perth', '6000', 'WA');
 
 INSERT INTO user (name, password, phone_number, email, role, addressID) VALUES
 ('Alice Smith', 'scrypt:32768:8:1$HZIFscB9KSrseSKv$2a0f3a394dc73d47ea9c8e51bf8892ca2b8c670237c8a7d7fc8eb65714eb2be8b6edea71292502a66ab23a0e7ab33d3ca5735b80ae531f3cdb231a46ef5f2e5f', '0412233445', 'alice@example.com', 'customer', 1),
 ('Charlie Lee', 'scrypt:32768:8:1$w0lgzSAydOFhvWzC$ad4d06bd06a61c85f550d05ac89a9466b5bdb21e09f74a5e7c144ae204ed1b9e9de2114e5dec13bca533b3d3c3c9e81faa785a4e8fabcd1e8da4afc9df3f14db', '0412345678', 'charlie@example.com', 'customer', 2),
-('John Mathews', 'scrypt:32768:8:1$MqHfGY1ZxZG3EO5T$1ba7efa65307e488467bc1e3b6eabe2990477761f26ec66919215df71bc258ced2f20c544a7bf1f0e3716f89305e644f51a231ee7a1d8b9fb3ae94e350645d5d', '0498765432', 'john@example.com', 'customer', 3);
-INSERT INTO user (name, password, email, role) VALUES ('Admin', 'scrypt:32768:8:1$wi5jjgtbyaWZChwy$352204aa2dc1bcfe33cb475f1071f658090c5190344a7198436f8fdf7b9e283fb325d57422353dfdfa1c026ec6c5fcac53b08f43c215455a19abcee8c6528f07', 'admin@example.com', 'admin');
+('John Mathews', 'scrypt:32768:8:1$MqHfGY1ZxZG3EO5T$1ba7efa65307e488467bc1e3b6eabe2990477761f26ec66919215df71bc258ced2f20c544a7bf1f0e3716f89305e644f51a231ee7a1d8b9fb3ae94e350645d5d', '0498765432', 'john@example.com', 'customer', 3),
+('Diana West', 'scrypt:32768:8:1$10ID8A2UwprDJ8VS$f25554fe22e51fca4fcaad58133b090c2e80f5fe9e76cf378d2a63e13223d434140743b58375a8f0d2eb24893ce891563132b3a1998655d8e0fdb8603598659a', '0433221100', 'diana@example.com', 'customer', 4);
+INSERT INTO user (name, password, email, role) VALUES 
+('admin', 'scrypt:32768:8:1$wi5jjgtbyaWZChwy$352204aa2dc1bcfe33cb475f1071f658090c5190344a7198436f8fdf7b9e283fb325d57422353dfdfa1c026ec6c5fcac53b08f43c215455a19abcee8c6528f07', 'admin@example.com', 'admin'),
+('admin2', 'scrypt:32768:8:1$Pk6cJbrwarlU91tk$64c480f6b3fb95f8d309b38a7c877bd72a67c8112f1d3976a0c62b4fa5785c53613a23be05392b0c015b0f8151e7bcc7b795bdb8678ba7e055c1cdf1ae5a7b22', 'admin2@example.com', 'admin');
 
 INSERT INTO review(userID, review_text) VALUES (1, "Amazing service and the coffee is always hot. Highly recommend!"), (2, "Great food! The eco-delivery option is pretty cool");
 
