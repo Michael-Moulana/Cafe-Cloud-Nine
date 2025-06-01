@@ -50,7 +50,7 @@
                     {% endif %}
                     {% if 'user_id' in session and session.get('role') == 'admin' %}
                       <li class="nav-item me-2">
-                        <a class="nav-link bordered-btn d-flex justify-content-center admin-link" style="width:100px" href="{{ url_for('main.admin') }}">
+                         <a class="nav-link d-flex justify-content-center admin-link" style="width:100px; height: 35px;" href="{{ url_for('main.admin') }}">
                           <i class="bi bi-shield-lock me-1"></i>ADMIN
                         </a>
                       </li>
