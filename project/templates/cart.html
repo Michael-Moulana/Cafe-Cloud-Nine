@@ -131,6 +131,16 @@
 
 {% block content %}
 <div class="container cart-header">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} d-flex align-items-center justify-content-between" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="btn-close me-3" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
   <h1>Your Cart</h1>
   <p class="text-muted">Review your selected items before proceeding to checkout.</p>
 
@@ -146,23 +156,24 @@
         <div style="display: flex; align-items: center; justify-content: flex-end;">
           <form action="{{ url_for('main.update_quantity', item_id=item.itemID) }}" method="POST" style="display: flex; align-items: center; justify-content: flex-end;">
             <input type="number"
+                  class="form-control"
                   name="quantity"
                   value="{{ item.quantity }}"
                   min="1" max="10"
                   style="width: 60px; text-align: center; margin-right: 15px" />
-            <button type="submit" class="update-btn">Update</button>
+            <button type="submit" class="update-btn"><i class="bi bi-arrow-counterclockwise me-1"></i>Update</button>
           </form>
 
           <form action = "{{ url_for('main.remove_from_cart', item_id = item['itemID'])}}" method = "POST" style="margin-left: 5px;">
-            <button type = "submit" class="remove-btn">Remove</button>
+            <button type = "submit" class="remove-btn"><i class="bi bi-x me-1"></i>Remove</button>
           </form>
         </div>
       </div>
       {% endfor %}
     </div>
 
-          <form action="{{ url_for('main.clear_cart')}}" method = "POST" style = "display: inline-block; margin-top: 15px">
-            <button type = "submit" class = "clear-btn" >Clear Cart</button>
+          <form action="{{ url_for('main.clear_cart')}}" method="POST" style="display: inline-block; margin-top: 15px">
+            <button type="submit" class="clear-btn"><i class="bi bi-trash3 me-1"></i>Clear Cart</button>
           </form>
 
 
