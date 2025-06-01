@@ -24,7 +24,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light shadow-sm mb-5">
         <div class="container"> 
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Cafe Cloud Nine</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}" style="margin-top: 25px;">Cafe Cloud Nine</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -51,7 +51,7 @@
                     {% endif %}
                     {% if 'user_id' in session and session.get('role') == 'admin' %}
                       <li class="nav-item me-2">
-                        <a class="nav-link bordered-btn d-flex justify-content-center admin-link" style="width:90px" href="{{ url_for('main.admin') }}">
+                        <a class="nav-link bordered-btn d-flex justify-content-center admin-link" style="width:100px" href="{{ url_for('main.admin') }}">
                           <i class="bi bi-shield-lock me-1"></i>ADMIN
                         </a>
                       </li>
