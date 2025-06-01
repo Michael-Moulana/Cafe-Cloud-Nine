@@ -33,14 +33,14 @@ Details{% endblock %} {% block head %} {{ super() }}
   </div>
   {% endfor %} {% endif %} {% endwith %}
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-3 ">
       <img
         src="{{ url_for('static', filename=item.image if item and item.image else 'img/item1.jpeg') }}"
         alt="{{ item.name|default('Avocado on Toast') }}"
         class="product-image"
       />
     </div>
-    <div class="col-md-6 ms-2">
+    <div class="col-md-6 ms-2 mt-2">
       <h1>{{ item.name|default('None') }}</h1>
       <p class="price">
         ${{ "%.2f"|format(item.price|float) if item and item.price else '20.00'
@@ -70,7 +70,7 @@ Details{% endblock %} {% block head %} {{ super() }}
             required
            
           />
-          <button type="submit" class="ms-3 custom-btn btn-success">
+          <button type="submit" class="ms-3 custom-btn btn-success"><i class="bi bi-cart me-2"></i>
             Add to Cart
           </button>
         </div>
