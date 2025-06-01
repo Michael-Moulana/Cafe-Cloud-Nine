@@ -19,15 +19,25 @@ python run.py
 username: admin@example.com
 password: password4
 
-2. 
+2. (admin)
+username: admin2@example.com
+password: password6
+
+3. 
 username: alice@example.com
 password: password1
 
-3. 
+4. 
 username: charlie@example.com
 password: password2
 
-4.
+5.
 username: john@example.com
 password: password3
+
+6. 
+username: diana@example.com
+password: password4
+
+
 
