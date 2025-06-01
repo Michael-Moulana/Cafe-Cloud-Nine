@@ -102,7 +102,6 @@
             </div>
 
             <!-- Filter Dropdown -->
-        
             <div style="min-width: 200px;">
                 <select class="form-select h-100" name="category">
                     <option value="" {% if not category %}selected{% endif %}>All Categories</option>
@@ -112,7 +111,7 @@
                     {% endfor %}
                 </select>
             </div>
-            
+            <button type="submit" class="custom-btn btn-success px-3">Search</button>
         </div>
     </form>
 </div>

@@ -14,9 +14,6 @@ body {
   color: #61baf1;
 }
 
-
-
-
 .navbar {
   background-color: white !important;
   backdrop-filter: blur(10px);
@@ -184,3 +181,8 @@ footer {
 
 
 
+@media (max-width: 768px) {
+  .cafe-name {
+    font-size: 2.5rem;
+  }
+}
