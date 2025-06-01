@@ -14,7 +14,6 @@ body {
   color: #61baf1;
 }
 
-
 @media (max-width: 768px) {
   .admin-link {
     max-width: 100px; /* Limit the width */
@@ -23,8 +22,6 @@ body {
     overflow: hidden; /* Hide overflow */
   }
 }
-
-
 
 .navbar {
   background-color: white !important;
