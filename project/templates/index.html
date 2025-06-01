@@ -96,9 +96,9 @@
 <div class="container my-3">
     <form action="{{ url_for('main.index') }}" method="GET">
         <div class="d-flex justify-content-between align-items-stretch flex-wrap gap-2">
-            <div class="d-flex flex-grow-1 gap-2" style="max-width: 70%;">
+            <div class="d-flex flex-grow-1 gap-2" style="max-width: 80%;">
                 <input type="text" name="query" class="form-control" placeholder="Search for products..." value="{{ query or '' }}">
-                <button type="submit" class="custom-btn btn-success px-3">Search</button>
+                
             </div>
 
             <!-- Filter Dropdown -->
@@ -112,7 +112,7 @@
                     {% endfor %}
                 </select>
             </div>
-            
+            <button type="submit" class="custom-btn btn-success px-3">Search</button>
         </div>
     </form>
 </div>
@@ -178,7 +178,7 @@
 </div>
 {% else %}
 <div class="container my-4">
-    <div class="alert alert-warning text-center" role="alert">
+    <div class="alert alert-warning text-center" role="alert" style="background-color: #75c0f6; color:white">
         <strong>Please <a href="{{ url_for('main.login') }}">log in</a> to leave a review.</strong>
     </div>
 </div>
