@@ -144,7 +144,7 @@ body {
   text-decoration: none;
 }
 
-.navbar .login-btn {
+.navbar .login-btn, .navbar .admin-link{
   background: #62b6f0;
   color: white;
   border: none;
@@ -153,9 +153,10 @@ body {
   text-decoration: none;
   display: inline-block;
   padding: 5px;
+  margin-top: 3px;
 }
 
-.navbar .login-btn:hover {
+.navbar .login-btn:hover, .navbar .admin-link:hover {
   background: #398bc5;
   color: white;
 }
