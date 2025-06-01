@@ -298,7 +298,7 @@ def update_order_status(order_id, new_status):
         cur.execute("UPDATE user_order SET status = %s WHERE orderID = %s", (new_status, order_id))
         mysql.connection.commit()
     except Exception as e:
-        logger.error(f"Failed to update order status: {e}")
+        print(f"Failed to update order status: {e}")
         raise
     finally:
         cur.close()

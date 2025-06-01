@@ -148,7 +148,7 @@ def add_to_cart(item_id):
 
         session['cart'] = cart
 
-        flash(f"Added {quantity} of {item['name']} to cart!")
+        flash(f"Added {quantity} of {item['name']} to cart!", "success")
     else:
         flash("Item not found.", "danger")
     next_url = request.referrer
@@ -166,7 +166,7 @@ def remove_from_cart(item_id):
     if item_id_str in cart:
         remove_item = cart.pop(item_id_str)
         session['cart'] = cart
-        flash(f"Removed {remove_item['name']}from cart.")
+        flash(f"Removed {remove_item['name']} from cart.", "success")
     
     else:
         flash("item not found.")
@@ -185,7 +185,7 @@ def update_quantity(item_id):
             quantity = int(request.form.get('quantity', 1))
             if quantity > 0:
                 cart[item_id_str]['quantity'] = quantity
-                flash(f"Updated quantity for {cart[item_id_str]['name']}.")
+                flash(f"Updated quantity for {cart[item_id_str]['name']}.", "success")
             
             else:
                 cart.pop(item_id_str)
