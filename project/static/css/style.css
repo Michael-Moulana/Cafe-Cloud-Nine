@@ -184,3 +184,8 @@ footer {
 
 
 
+@media (max-width: 768px) {
+  .cafe-name {
+    font-size: 2.5rem;
+  }
+}
