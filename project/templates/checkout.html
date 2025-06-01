@@ -141,7 +141,7 @@
         <div class="mb-3">
             <label for="address" class="form-label">Delivery Address</label>
             <select class="form-control" id="address" name="address" required>
-                <option value="">Select an address</option> <!-- Optional default option -->
+                <option value="">Select an address</option>
                 {% for address in addresses %}
                     <option value="{{ address.addressID }}">
                         {{ address.street_name }}, {{ address.city }}, {{ address.postcode }}, {{ address.territory }}

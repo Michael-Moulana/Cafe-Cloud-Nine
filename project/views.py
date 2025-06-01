@@ -297,7 +297,7 @@ def checkout():
         delivery_fee=delivery_fee,
         total=total,
         delivery_option=delivery_option,
-        payment_method='card',  # or fetch from session
+        payment_method='card',
         user_details=user_details,
         addresses=addresses
     )
