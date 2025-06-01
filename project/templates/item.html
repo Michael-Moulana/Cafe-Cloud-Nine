@@ -51,7 +51,6 @@ Details{% endblock %} {% block head %} {{ super() }}
       </p>
 
       <!-- --- FORM FOR ADDING TO CART -->
-
       <form
         method="POST"
         action="{{ url_for('main.add_to_cart', item_id=item.itemID if item else 1) }}"
@@ -81,7 +80,6 @@ Details{% endblock %} {% block head %} {{ super() }}
   </div>
 </div>
 
-<!-- Bootstrap JS (no custom script) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 {% endblock %}
