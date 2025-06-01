@@ -153,6 +153,7 @@ body {
   text-decoration: none;
   display: inline-block;
   padding: 5px;
+  margin-top: 3px;
 }
 
 .navbar .login-btn:hover, .navbar .admin-link:hover {
