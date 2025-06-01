@@ -90,7 +90,7 @@ body {
 }
 
 .custom-btn-update {
-  background: #87cefa;
+  background: #62b6f0;
   color: white;
   border: none;
   padding: 10px 10px;
@@ -103,7 +103,7 @@ body {
 }
 
 .custom-btn-update:hover {
-  background: #62b6f0;
+  background: #398bc5;
   text-decoration: none;
 }
 
@@ -144,7 +144,7 @@ body {
 }
 
 .navbar .login-btn {
-  background: #87cefa;
+  background: #62b6f0;
   color: white;
   border: none;
   cursor: pointer;
@@ -154,7 +154,7 @@ body {
 }
 
 .navbar .login-btn:hover {
-  background: #62b6f0;
+  background: #398bc5;
   color: white;
 }
 
