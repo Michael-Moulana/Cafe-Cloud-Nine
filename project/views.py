@@ -204,7 +204,7 @@ def update_quantity(item_id):
 @main.route('/clear_cart', methods = ['POST'])
 def clear_cart():
     session['cart'] = {}
-    flash("The cart is now empty")
+    flash("The cart is now empty", "success")
     return redirect(url_for('main.cart'))
 
 # checkout page
